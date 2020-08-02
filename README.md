@@ -16,10 +16,24 @@
     <img alt="Coverage" src="https://codecov.io/gh/marcofavorito/yarllib/branch/master/graph/badge.svg?token=RFZ54P0BKQ" />
   </a>
   <a href="https://github.com/marcofavorito/yarllib/blob/master/LICENSE">
-    <img alt="GitHub" src="https://img.shields.io/github/license/marcofavorito/yarrlib">
+    <img alt="GitHub" src="https://img.shields.io/github/license/marcofavorito/yarllib">
   </a>
 </p>
 <p align="center">
+  <a href="https://pypi.org/project/yarllib">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/yarllib">
+  </a>
+  <a href="https://pypi.org/project/yarllib">
+    <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/yarllib" />
+  </a>
+  <img alt="PyPI - Status" src="https://img.shields.io/pypi/status/yarllib" />
+  <img alt="PyPI - Implementation" src="https://img.shields.io/pypi/implementation/yarllib">
+  <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/yarllib">  
+</p>
+<p align="center">
+  <a href="https://img.shields.io/badge/packaging-poetry-lightgrey">
+    <img alt="flake8" src="https://img.shields.io/badge/packaging-poetry-lightgrey" />
+  </a>
   <a href="https://img.shields.io/badge/flake8-checked-blueviolet">
     <img alt="flake8" src="https://img.shields.io/badge/flake8-checked-blueviolet" />
   </a>
