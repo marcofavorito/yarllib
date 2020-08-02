@@ -29,6 +29,9 @@
   <a href="https://img.shields.io/badge/isort-checked-yellow">
     <img alt="isort" src="https://img.shields.io/badge/isort-checked-yellow" />
   </a>
+  <a href="https://img.shields.io/badge/code%20style-black-black">
+    <img alt="black" src="https://img.shields.io/badge/code%20style-black-black" />
+  </a>
   <a href="https://img.shields.io/badge/docs-mkdocs-9cf">
     <img alt="mkdocs" src="https://img.shields.io/badge/docs-mkdocs-9cf" />
   </a>
