@@ -824,7 +824,7 @@ description = "An MkDocs plugin that enables managing citations with BibTex"
 name = "mkdocs-bibtex"
 optional = false
 python-versions = ">=3.5"
-version = "0.2.4.dev46+g974a22a"
+version = "0.2.4.dev47+g8daf4a1"
 
 [package.dependencies]
 markdown = ">=3.1.1"
@@ -833,7 +833,7 @@ pybtex = ">=0.22"
 pypandoc = ">=1.5"
 
 [package.source]
-reference = "974a22a739e67252f86d0c92135a01f324b64c8e"
+reference = "8daf4a1d140db18826b24e3ceae7c79a4700bdd2"
 type = "git"
 url = "https://github.com/marcofavorito/mkdocs-bibtex.git"
 [[package]]
