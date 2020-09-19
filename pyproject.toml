@@ -6,7 +6,7 @@ authors = ["MarcoFavorito <marco.favorito@gmail.com>"]
 license = "LGPL-3.0-or-later"
 readme = "README.md"
 homepage = "https://marcofavorito.github.io/yarllib"
-repository = "https://github.com/whitemech/yarllib.git"
+repository = "https://github.com/marcofavorito/yarllib.git"
 documentation = "https://marcofavorito.github.io/yarllib"
 keywords = [
     "reinforcement learning",
@@ -29,8 +29,8 @@ include = []
 #script_name = 'path/to/script'
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/whitemech/yarllib/issues"
-"Pull Requests" = "https://github.com/whitemech/yarllib/pulls"
+"Bug Tracker" = "https://github.com/marcofavorito/yarllib/issues"
+"Pull Requests" = "https://github.com/marcofavorito/yarllib/pulls"
 
 [tool.poetry.dependencies]
 python = "^3.7"

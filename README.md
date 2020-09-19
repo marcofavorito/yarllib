@@ -18,22 +18,22 @@
   <a href="">
     <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/yarllib">
   </a>
-  <a href="https://github.com/whitemech/yarllib/blob/master/LICENSE">
-    <img alt="GitHub" src="https://img.shields.io/github/license/whitemech/yarllib">
+  <a href="https://github.com/marcofavorito/yarllib/blob/master/LICENSE">
+    <img alt="GitHub" src="https://img.shields.io/github/license/marcofavorito/yarllib">
   </a>
 </p>
 <p align="center">
   <a href="">
-    <img alt="test" src="https://github.com/whitemech/yarllib/workflows/test/badge.svg">
+    <img alt="test" src="https://github.com/marcofavorito/yarllib/workflows/test/badge.svg">
   </a>
   <a href="">
-    <img alt="lint" src="https://github.com/whitemech/yarllib/workflows/lint/badge.svg">
+    <img alt="lint" src="https://github.com/marcofavorito/yarllib/workflows/lint/badge.svg">
   </a>
   <a href="">
-    <img alt="docs" src="https://github.com/whitemech/yarllib/workflows/docs/badge.svg">
+    <img alt="docs" src="https://github.com/marcofavorito/yarllib/workflows/docs/badge.svg">
   </a>
-  <a href="https://codecov.io/gh/whitemech/yarllib">
-    <img alt="codecov" src="https://codecov.io/gh/whitemech/yarllib/branch/master/graph/badge.svg?token=FG3ATGP5P5">
+  <a href="https://codecov.io/gh/marcofavorito/yarllib">
+    <img alt="codecov" src="https://codecov.io/gh/marcofavorito/yarllib/branch/master/graph/badge.svg?token=FG3ATGP5P5">
   </a>
 </p>
 <p align="center">
