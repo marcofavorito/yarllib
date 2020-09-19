@@ -90,7 +90,6 @@ if __name__ == "__main__":
         Path("yarllib").glob("**/*.py"),
         Path("tests").glob("**/*.py"),
         Path("scripts").glob("**/*.py"),
-        [Path("setup.py")],
     )
 
     bad_files = [
