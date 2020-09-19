@@ -22,10 +22,12 @@
 #
 
 """
-This script checks that all the Python files of the repository have:
+This script checks that all the Python files of the repository have the copyrigth notice.
+
+In particular:
 - (optional) the Python shebang
 - the encoding header;
-- the copyright notice;
+- the copyright and license notices;
 
 It is assumed the script is run from the repository root.
 """
@@ -86,15 +88,17 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    python_files = itertools.chain(
-        Path("yarllib").glob("**/*.py"),
-        Path("tests").glob("**/*.py"),
-        Path("scripts").glob("**/*.py"),
+    exclude_files = {Path("scripts", "whitelist.py")}
+    python_files = filter(
+        lambda x: x not in exclude_files,
+        itertools.chain(
+            Path("yarllib").glob("**/*.py"),
+            Path("tests").glob("**/*.py"),
+            Path("scripts").glob("**/*.py"),
+        ),
     )
 
-    bad_files = [
-        filepath for filepath in python_files if not check_copyright(filepath)
-    ]
+    bad_files = [filepath for filepath in python_files if not check_copyright(filepath)]
 
     if len(bad_files) > 0:
         print("The following files are not well formatted:")

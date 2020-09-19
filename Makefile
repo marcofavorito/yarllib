@@ -57,28 +57,42 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .mypy_cache
 	rm -fr coverage.xml
 
+lint-all: black isort lint static bandit safety vulture pylint ## run all linters
+
 lint: ## check style with flake8
-	flake8 yarllib tests
+	flake8 src/yarllib tests scripts
 
 static: ## static type checking with mypy
-	mypy yarllib tests
+	mypy src/yarllib tests scripts
 
 isort: ## sort import statements with isort
-	isort yarllib tests
+	isort src/yarllib tests scripts
 
 isort-check: ## check import statements order with isort
-	isort --check-only yarllib tests
+	isort --check-only src/yarllib tests scripts
 
 black: ## apply black formatting
-	black yarllib tests
+	black src/yarllib tests scripts
 
 black-check: ## check black formatting
-	black --check --verbose yarllib tests
+	black --check --verbose src/yarllib tests scripts
+
+bandit: ## run bandit
+	bandit src/yarllib tests scripts
+
+safety: ## run safety
+	safety
+
+pylint: ## run pylint
+	pylint src/yarllib tests scripts
+
+vulture: ## run vulture
+	vulture src/yarllib scripts/whitelist.py
 
 test: ## run tests quickly with the default Python
 	pytest tests --doctest-modules \
-        yarllib tests/ \
-        --cov=yarllib \
+        src/yarllib tests/ \
+        --cov=src/yarllib \
         --cov-report=xml \
         --cov-report=html \
         --cov-report=term
@@ -87,7 +101,7 @@ test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source yarllib -m pytest
+	coverage run --source src/yarllib -m pytest
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html

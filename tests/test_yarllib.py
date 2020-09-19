@@ -22,7 +22,7 @@
 
 """Test yarllib."""
 
-from yarllib import __version__
+from src.yarllib import __version__
 
 
 def test_version():

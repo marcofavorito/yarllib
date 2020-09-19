@@ -1,1 +1,14 @@
-site_name: yarrlib Docs
+site_name: yarllib
+repo_name: 'marcofavorito/yarllib'
+repo_url: https://github.com/marcofavorito/yarllib
+
+nav:
+- Home: index.md
+- Credits: authors.md
+- How to contribute: contributing.md
+
+theme:
+  name: material
+markdown_extensions:
+- markdown_include.include:
+    base_path: docs
