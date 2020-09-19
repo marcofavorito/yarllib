@@ -1,24 +1,7 @@
 <h1 align="center">
-    <b>yarllib</b>
+  <b>yarllib</b>
 </h1>
 
-<p align="center">
-  <a href="https://github.com/marcofavorito/yarllib/actions?query=workflow%3Atest">
-    <img alt="test" src="https://github.com/marcofavorito/yarllib/workflows/test/badge.svg" />
-  </a>
-  <a href="https://github.com/marcofavorito/yarllib/actions?query=workflow%3Alint">
-    <img alt="lint" src="https://github.com/marcofavorito/yarllib/workflows/lint/badge.svg" />
-  </a>
-  <a href="https://github.com/marcofavorito/yarllib/actions?query=workflow%3Adocs">
-    <img alt="docs" src="https://github.com/marcofavorito/yarllib/workflows/docs/badge.svg" />
-  </a>
-  <a href="https://codecov.io/gh/marcofavorito/yarllib">
-    <img alt="Coverage" src="https://codecov.io/gh/marcofavorito/yarllib/branch/master/graph/badge.svg?token=RFZ54P0BKQ" />
-  </a>
-  <a href="https://github.com/marcofavorito/yarllib/blob/master/LICENSE">
-    <img alt="GitHub" src="https://img.shields.io/github/license/marcofavorito/yarllib">
-  </a>
-</p>
 <p align="center">
   <a href="https://pypi.org/project/yarllib">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/yarllib">
@@ -26,30 +9,48 @@
   <a href="https://pypi.org/project/yarllib">
     <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/yarllib" />
   </a>
-  <img alt="PyPI - Status" src="https://img.shields.io/pypi/status/yarllib" />
-  <img alt="PyPI - Implementation" src="https://img.shields.io/pypi/implementation/yarllib">
-  <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/yarllib">  
+  <a href="">
+    <img alt="PyPI - Status" src="https://img.shields.io/pypi/status/yarllib" />
+  </a>
+  <a href="">
+    <img alt="PyPI - Implementation" src="https://img.shields.io/pypi/implementation/yarllib">
+  </a>
+  <a href="">
+    <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/yarllib">
+  </a>
+  <a href="https://github.com/whitemech/yarllib/blob/master/LICENSE">
+    <img alt="GitHub" src="https://img.shields.io/github/license/whitemech/yarllib">
+  </a>
 </p>
 <p align="center">
-  <a href="https://img.shields.io/badge/packaging-poetry-lightgrey">
-    <img alt="flake8" src="https://img.shields.io/badge/packaging-poetry-lightgrey" />
+  <a href="">
+    <img alt="test" src="https://github.com/whitemech/yarllib/workflows/test/badge.svg">
   </a>
+  <a href="">
+    <img alt="lint" src="https://github.com/whitemech/yarllib/workflows/lint/badge.svg">
+  </a>
+  <a href="">
+    <img alt="docs" src="https://github.com/whitemech/yarllib/workflows/docs/badge.svg">
+  </a>
+  <a href="https://codecov.io/gh/whitemech/yarllib">
+    <img alt="codecov" src="https://codecov.io/gh/whitemech/yarllib/branch/master/graph/badge.svg?token=FG3ATGP5P5">
+  </a>
+</p>
+<p align="center">
   <a href="https://img.shields.io/badge/flake8-checked-blueviolet">
-    <img alt="flake8" src="https://img.shields.io/badge/flake8-checked-blueviolet" />
+    <img alt="" src="https://img.shields.io/badge/flake8-checked-blueviolet">
   </a>
   <a href="https://img.shields.io/badge/mypy-checked-blue">
-    <img alt="mypy" src="https://img.shields.io/badge/mypy-checked-blue" />
-  </a>
-  <a href="https://img.shields.io/badge/isort-checked-yellow">
-    <img alt="isort" src="https://img.shields.io/badge/isort-checked-yellow" />
+    <img alt="" src="https://img.shields.io/badge/mypy-checked-blue">
   </a>
   <a href="https://img.shields.io/badge/code%20style-black-black">
     <img alt="black" src="https://img.shields.io/badge/code%20style-black-black" />
   </a>
-  <a href="https://img.shields.io/badge/docs-mkdocs-9cf">
-    <img alt="mkdocs" src="https://img.shields.io/badge/docs-mkdocs-9cf" />
+  <a href="https://www.mkdocs.org/">
+    <img alt="" src="https://img.shields.io/badge/docs-mkdocs-9cf">
   </a>
 </p>
+
 
 Yet Another Reinforcement Learning Library.
 
