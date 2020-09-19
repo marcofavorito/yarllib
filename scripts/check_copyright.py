@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
+# Copyright 2020 Marco Favorito
+#
+# ------------------------------
+#
 # This file is part of yarllib.
 #
 # yarllib is free software: you can redistribute it and/or modify
@@ -33,6 +37,10 @@ from pathlib import Path
 
 HEADER_REGEX = r"""(#!/usr/bin/env python3
 )?# -\*- coding: utf-8 -\*-
+#
+# Copyright 2020 Marco Favorito
+#
+# ------------------------------
 #
 # This file is part of yarllib\.
 #
