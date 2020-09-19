@@ -20,11 +20,12 @@
 # along with yarllib.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""Test yarllib."""
+"""This module contains basic types definitions."""
 
-from yarllib import __version__
+from typing import Any, Tuple
 
-
-def test_version():
-    """Test the library version."""
-    assert __version__ == "0.1.0"
+State = Any
+Action = Any
+Reward = Any
+Done = bool
+AgentObservation = Tuple[State, Action, Reward, State, Done]

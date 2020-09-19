@@ -20,11 +20,18 @@
 # along with yarllib.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""Test yarllib."""
+"""This module contains callbacks to customize the training/testing loop."""
 
-from yarllib import __version__
+from yarllib.core import LearningEventListener
 
 
-def test_version():
-    """Test the library version."""
-    assert __version__ == "0.1.0"
+class RenderEnv(LearningEventListener):
+    """An OpenAI Gym renderer implemented as listener."""
+
+    def on_episode_begin(self, *args, **kwargs) -> None:
+        """On episode begin event."""
+        self.context.environment.render()
+
+    def on_step_end(self, *args, **kwargs) -> None:
+        """On step end event."""
+        self.context.environment.render()

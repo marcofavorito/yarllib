@@ -6,7 +6,7 @@ authors = ["MarcoFavorito <marco.favorito@gmail.com>"]
 license = "LGPL-3.0-or-later"
 readme = "README.md"
 homepage = "https://marcofavorito.github.io/yarllib"
-repository = "https://github.com/whitemech/yarllib.git"
+repository = "https://github.com/marcofavorito/yarllib.git"
 documentation = "https://marcofavorito.github.io/yarllib"
 keywords = [
     "reinforcement learning",
@@ -29,11 +29,16 @@ include = []
 #script_name = 'path/to/script'
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/whitemech/yarllib/issues"
-"Pull Requests" = "https://github.com/whitemech/yarllib/pulls"
+"Bug Tracker" = "https://github.com/marcofavorito/yarllib/issues"
+"Pull Requests" = "https://github.com/marcofavorito/yarllib/pulls"
 
 [tool.poetry.dependencies]
 python = "^3.7"
+gym = "^0.17.2"
+numpy = "^1.19.2"
+matplotlib = "^3.3.2"
+seaborn = "^0.11.0"
+pandas = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.1"
@@ -56,6 +61,10 @@ bandit = "^1.6.2"
 mkdocs = "^1.1.2"
 markdown_include = "^0.6.0"
 mkdocs-material = "^5.5.11"
+ipython = "^7.18.1"
+jupyter = "^1.0.0"
+mknotebooks = "^0.6.0"
+mkdocs-bibtex = { git = "https://github.com/marcofavorito/mkdocs-bibtex.git", branch = "master" }
 
 [build-system]
 requires = ["poetry>=0.12"]
