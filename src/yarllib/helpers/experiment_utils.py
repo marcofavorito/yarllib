@@ -37,6 +37,10 @@ def _do_job(agent, env, policy, seed, nb_episodes):
     return history
 
 
+def _raise_exception(e):
+    raise e
+
+
 def run_experiments(
     make_agent: Callable,
     env: gym.Env,
@@ -63,7 +67,11 @@ def run_experiments(
     agent = make_agent()
     pool = multiprocessing.Pool(processes=nb_workers)
     results = [
-        pool.apply_async(_do_job, args=(agent, env, policy, seed, nb_episodes))
+        pool.apply_async(
+            _do_job,
+            args=(agent, env, policy, seed, nb_episodes),
+            error_callback=_raise_exception,
+        )
         for seed in seeds
     ]
     for p in results:

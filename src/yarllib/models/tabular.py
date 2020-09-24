@@ -38,7 +38,7 @@ def _make_table(nb_rows: int, nb_cols: int, sparse: bool):
     if sparse:
         return SparseTable(nb_rows, nb_cols)
     else:
-        return np.random.rand(nb_rows, nb_cols) * 0.01
+        return np.random.rand(nb_rows, nb_cols) * np.finfo(float).eps
 
 
 class TabularModel(Model, ABC):
@@ -50,7 +50,7 @@ class TabularModel(Model, ABC):
         action_space: Discrete,
         alpha: float = 0.1,
         gamma: float = 0.99,
-        sparse: bool = True,
+        sparse: bool = False,
     ):
         """
         Initialize a tabular model.
@@ -69,7 +69,7 @@ class TabularModel(Model, ABC):
 
     def get_best_action(self, state: State) -> Any:
         """Get the best action."""
-        return np.argmax(self.q[state])
+        return self.q[state].argmax()
 
 
 class TabularQLearning(TabularModel):

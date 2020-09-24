@@ -22,7 +22,7 @@
 
 """Base helper module."""
 from collections import defaultdict
-from functools import singledispatch
+from functools import partial, singledispatch
 from typing import Any
 
 import gym
@@ -106,11 +106,15 @@ def _tuple(space: gym.spaces.Tuple) -> int:
 class SparseTable:
     """A (naive) sparse table, implemented using defaultdict."""
 
+    @staticmethod
+    def _initialize_row(nb_cols: int):
+        return np.finfo(float).eps * np.random.randn(nb_cols)
+
     def __init__(self, *args):
         """Initialize the sparse table."""
         assert len(args) == 2, "Only two-dimensional matrices can be represented."
         self._rows, self._cols = args
-        self._m = defaultdict(lambda: np.random.rand(self._cols) * 0.01)
+        self._m = defaultdict(partial(self._initialize_row, self._cols))
 
     def __getitem__(self, key):
         """Get an item."""
