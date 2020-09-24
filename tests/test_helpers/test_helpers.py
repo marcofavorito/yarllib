@@ -33,7 +33,7 @@ from yarllib.helpers.encoding import Encoder
 
 @pytest.mark.parametrize("space", [(5, 2), (5, 2, 3), (10, 20), (20, 10), (42, 1, 42)])
 def test_encoder_with_sampling(space):
-    """Test encoder with sampling."""
+    """Test space_encoder with sampling."""
     NUM_SAMPLES = int(np.prod(space))
     x = MultiDiscrete(space)
     e = Encoder(x)

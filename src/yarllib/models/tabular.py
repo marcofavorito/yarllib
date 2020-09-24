@@ -29,7 +29,16 @@ import numpy as np
 from gym.spaces import Discrete
 
 from yarllib.core import Model
+from yarllib.helpers.base import SparseTable
 from yarllib.types import Action, AgentObservation, State
+
+
+def _make_table(nb_rows: int, nb_cols: int, sparse: bool):
+    """Make a table to store the Q-function."""
+    if sparse:
+        return SparseTable(nb_rows, nb_cols)
+    else:
+        return np.random.rand(nb_rows, nb_cols) * 0.01
 
 
 class TabularModel(Model, ABC):
@@ -41,6 +50,7 @@ class TabularModel(Model, ABC):
         action_space: Discrete,
         alpha: float = 0.1,
         gamma: float = 0.99,
+        sparse: bool = True,
     ):
         """
         Initialize a tabular model.
@@ -55,7 +65,7 @@ class TabularModel(Model, ABC):
         self.action_space = action_space
         self.alpha = alpha
         self.gamma = gamma
-        self.q = np.zeros((self.state_space.n, self.action_space.n))
+        self.q = _make_table(state_space.n, action_space.n, sparse)
 
     def get_best_action(self, state: State) -> Any:
         """Get the best action."""
@@ -75,7 +85,7 @@ class TabularQLearning(TabularModel):
         gamma = self.gamma
         alpha = self.alpha
         s, a, r, sp, done = agent_observation
-        q[s, a] = q[s, a] + alpha * (r + gamma * np.max(q[sp, :]) - q[s, a])
+        q[s, a] = q[s, a] + alpha * (r + gamma * q[sp].max() - q[s, a])
 
 
 class TabularSarsa(TabularModel):
