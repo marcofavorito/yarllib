@@ -110,6 +110,10 @@ class SparseTable:
     def _initialize_row(nb_cols: int):
         return np.finfo(float).eps * np.random.randn(nb_cols)
 
+    @staticmethod
+    def _is_index_type(key) -> bool:
+        return isinstance(key, (int, np.int64))
+
     def __init__(self, *args):
         """Initialize the sparse table."""
         assert len(args) == 2, "Only two-dimensional matrices can be represented."
@@ -118,15 +122,29 @@ class SparseTable:
 
     def __getitem__(self, key):
         """Get an item."""
-        if isinstance(key, (int, np.int64)):
+        if self._is_index_type(key):
             assert_(0 <= key < self._rows, f"Row index {key} out of bound.")
+            if key not in self._m.keys():
+                self._m[key]
             return self._m[key]
         if len(key) == 2:
             row, col = key
+            assert_(self._is_index_type(row), f"Row {row} has wrong type.")
+            assert_(self._is_index_type(col), f"Column {col} has wrong type.")
             assert_(0 <= row < self._rows, f"Row index {row} out of bound.")
             assert_(0 <= col < self._cols, f"Column index {col} out of bound.")
             return self._m[row][col]
+        else:
+            raise ValueError()
 
     def __setitem__(self, key, item) -> None:
         """Set an item."""
-        self._m[key] = item
+        if len(key) == 2:
+            row, col = key
+            if row not in self._m.keys():
+                # this will initialize the entire row
+                self._m[row]
+            self._m[row][col] = item
+        else:
+            assert_(isinstance(item, np.ndarray), "Can only set arrays.")
+            self._m[key] = item
