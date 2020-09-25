@@ -42,7 +42,7 @@ class EpisodeHistory:
         :param observations: the list of (s, a, r, s') tuples.
         """
         # copy the argument
-        self._observations = np.array(observations, copy=True)
+        self._observations = np.array(observations, copy=True, dtype=object)
 
     @property
     def length(self) -> int:

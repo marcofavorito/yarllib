@@ -191,9 +191,44 @@ class FreezedModel(Model):
 class Policy(LearningEventListener):
     """A policy."""
 
+    _model: Optional[Model] = None
+    _action_space: Optional[gym.spaces.Space] = None
+
+    @property
+    def action_space(self) -> gym.spaces.Space:
+        """Get the action space."""
+        assert_(self._model is not None, "Action space is not set.")
+        return self._action_space
+
+    @action_space.setter
+    def action_space(self, value: Optional[gym.spaces.Space]) -> None:
+        """Get the action space."""
+        self._action_space = value
+
     @abstractmethod
     def get_action(self, state: State) -> Any:
         """Get the action."""
+
+    @property
+    def model(self) -> Model:
+        """Get the context."""
+        assert_(self._model is not None, "Model not set.")
+        return cast(Model, self._model)
+
+    @model.setter
+    def model(self, value: Optional[Model] = None) -> None:
+        """
+        Set the model`.
+
+        This method is called from the context class at the
+        beginning of each session, in order to bind
+        the listeners to the same context,
+        and and the end of each session, to unset it.
+
+        :param value: the reference to the model.
+        :return: None
+        """
+        self._model = value
 
 
 class Context:
@@ -232,6 +267,8 @@ class Context:
         """Trigger the begin session event."""
         if self.seed is not None:
             self._set_seed()
+        self.policy.model = self.model
+        self.policy.action_space = self.environment.action_space
         for listener in self.listeners:
             listener.context = self
             listener.on_session_begin()
@@ -241,6 +278,8 @@ class Context:
         for listener in self.listeners:
             listener.on_session_end()
             listener._context = None
+        self.policy._model = None
+        self.policy._action_space = None
 
     def begin_episode(self) -> None:
         """Trigger the begin episode event."""
