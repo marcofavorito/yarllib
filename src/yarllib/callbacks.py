@@ -22,6 +22,10 @@
 
 """This module contains callbacks to customize the training/testing loop."""
 import logging
+import shutil
+from pathlib import Path
+
+from PIL import Image
 
 from yarllib.core import LearningEventListener
 from yarllib.types import AgentObservation
@@ -31,6 +35,10 @@ class RenderEnv(LearningEventListener):
     """An OpenAI Gym renderer implemented as listener."""
 
     def on_episode_begin(self, *args, **kwargs) -> None:
+        """On episode begin event."""
+        self.context.environment.render()
+
+    def on_episode_end(self, *args, **kwargs) -> None:
         """On episode begin event."""
         self.context.environment.render()
 
@@ -83,3 +91,42 @@ class LoggingCallback(LearningEventListener):
         self.logger.debug(
             f"on_step_end: step={step}, agent_observation={agent_observation}", **kwargs
         )
+
+
+class FrameCapture(LearningEventListener):
+    """Capture frames from the game."""
+
+    def __init__(self, dest_dir: Path):
+        """
+        Initialize the callback.
+
+        :param dest_dir: the destination directory.
+        """
+        self.dest_dir = Path(dest_dir)
+        if self.dest_dir.exists():
+            shutil.rmtree(self.dest_dir)
+        self.dest_dir.mkdir()
+
+    def save_frame(self) -> None:
+        """
+        Save the frame.
+
+        :return: None
+        """
+        rgb_array = self.context.environment.render("rgb_array")
+        img = Image.fromarray(rgb_array)
+        step = self.context.current_episode_step
+        filename = "{:010}.jpeg".format(step)
+        img.save(self.dest_dir / str(self.context.current_episode) / filename)
+
+    def on_episode_begin(self, episode, **kwargs) -> None:
+        """Handle the episode begin."""
+        (self.dest_dir / str(episode)).mkdir(parents=True)
+
+    def on_episode_end(self, episode, **kwargs) -> None:
+        """Handle the episode end."""
+        self.save_frame()
+
+    def on_step_begin(self, step, action, **kwargs) -> None:
+        """Handle the step begin."""
+        self.save_frame()
