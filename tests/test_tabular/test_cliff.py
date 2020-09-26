@@ -59,10 +59,10 @@ def test_cliff():
     nb_runs = 5
     policy = EpsGreedyPolicy(0.1)
 
-    sarsa_histories = run_experiments(
+    _, sarsa_histories = run_experiments(
         make_sarsa, env, policy, nb_runs=nb_runs, nb_episodes=nb_episodes
     )
-    qlearning_histories = run_experiments(
+    _, qlearning_histories = run_experiments(
         make_qlearning, env, policy, nb_runs=nb_runs, nb_episodes=nb_episodes
     )
 

@@ -37,6 +37,6 @@ def test_frozenlake(model_class, sparse):
     env = FrozenLakeEnv(is_slippery=False)
     env = TimeLimit(env, max_episode_steps=env.observation_space.n * 5)
     agent = model_class(env.observation_space, env.action_space, gamma=0.9).agent()
-    agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=50000)
-    evaluation = agent.test(env, policy=GreedyPolicy(), nb_episodes=100)
+    agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=75000)
+    evaluation = agent.test(env, policy=GreedyPolicy(), nb_episodes=10)
     assert evaluation.total_rewards.mean() == 1.0
