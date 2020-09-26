@@ -156,7 +156,7 @@ def episode_history_to_json(e: EpisodeHistory) -> Any:
         observations=array_to_list(e.observations[:, 0]),
         actions=array_to_list(e.observations[:, 1]),
         rewards=e.rewards.tolist(),
-        last_observation=array_to_list([e.observations[-1][-1]]),
+        last_observation=array_to_list(e.observations[-1][-1]),
     )
 
 
