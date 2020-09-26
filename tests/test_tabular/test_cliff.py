@@ -27,7 +27,7 @@ import numpy as np
 from gym.envs.toy_text import CliffWalkingEnv
 from gym.wrappers import TimeLimit
 
-from yarllib.helpers.experiment_utils import run_experiments
+from yarllib.experiment_utils import run_experiments
 from yarllib.models.tabular import TabularQLearning, TabularSarsa
 from yarllib.policies import EpsGreedyPolicy
 

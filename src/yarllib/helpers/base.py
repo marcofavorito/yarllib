@@ -148,3 +148,20 @@ class SparseTable:
         else:
             assert_(isinstance(item, np.ndarray), "Can only set arrays.")
             self._m[key] = item
+
+
+def to_native_type(numpy_obj):
+    """From NumPy type to Python type."""
+    return getattr(numpy_obj, "tolist", lambda: numpy_obj)()
+
+
+def array_to_list(array):
+    """From NumPy array to list."""
+    if isinstance(array, np.ndarray):
+        return array_to_list(array.tolist())
+    elif isinstance(array, list):
+        return [array_to_list(item) for item in array]
+    elif isinstance(array, tuple):
+        return tuple(array_to_list(item) for item in array)
+    else:
+        return to_native_type(array)

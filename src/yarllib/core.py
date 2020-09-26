@@ -74,7 +74,7 @@ class LearningEventListener(ABC):
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin event."""
 
-    def on_session_end(self, *args, **kwargs) -> None:
+    def on_session_end(self, exception: Optional[Exception], *args, **kwargs) -> None:
         """On session end event."""
 
     def on_episode_begin(self, episode, **kwargs) -> None:
@@ -101,7 +101,10 @@ class HistoryCallback(LearningEventListener):
 
     def get_history(self) -> History:
         """Get the history."""
-        return History(self.episodes)
+        is_training = self.context.is_training
+        seed = self.context.seed
+        name = self.context.experiment_name
+        return History(self.episodes, is_training=is_training, seed=seed, name=name)
 
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin event."""
@@ -244,6 +247,7 @@ class Context:
         listeners: Collection[LearningEventListener],
         is_training: bool,
         seed: Optional[int] = None,
+        experiment_name: str = "",
     ):
         """Initialize the context."""
         self.model = model
@@ -253,6 +257,7 @@ class Context:
         self.listeners = list(listeners) + [self.history_callback]
         self.is_training = is_training
         self.seed = seed
+        self.experiment_name = experiment_name
         self.nb_episodes = nb_episodes
         self.nb_steps = nb_steps
         self.current_step = 0
@@ -273,13 +278,15 @@ class Context:
             listener.context = self
             listener.on_session_begin()
 
-    def end_session(self) -> None:
+    def end_session(self, exception: Optional[Exception] = None) -> None:
         """Trigger the end session event."""
         for listener in self.listeners:
-            listener.on_session_end()
+            listener.on_session_end(exception)
             listener._context = None
         self.policy._model = None
         self.policy._action_space = None
+        if exception is not None:
+            raise exception
 
     def begin_episode(self) -> None:
         """Trigger the begin episode event."""
@@ -355,6 +362,7 @@ class Agent(ABC):
         callbacks: Sequence[LearningEventListener] = (),
         is_training: bool = True,
         seed: Optional[int] = None,
+        experiment_name: str = "",
     ) -> History:
         """
         Run a training/testing session of the agent.
@@ -364,26 +372,40 @@ class Agent(ABC):
         :return: None.
         """
         context = self._make_context(
-            env, policy, nb_episodes, nb_steps, callbacks, is_training, seed
+            env,
+            policy,
+            nb_episodes,
+            nb_steps,
+            callbacks,
+            is_training,
+            seed,
+            experiment_name,
         )
         context.begin_session()
         done = False
         current_state = env.reset()
         context.begin_episode()
-        while not context.is_session_done():
-            if done:
-                context.end_episode()
-                current_state = env.reset()
-                done = False
-                context.begin_episode()
-                continue
-            action = context.model.get_action(current_state)
-            context.begin_step(action)
-            next_state, reward, done, _ = env.step(action)
-            context.end_step((current_state, action, reward, next_state, done))
-            current_state = next_state
+        exception = None
+        try:
+            while not context.is_session_done():
+                if done:
+                    context.end_episode()
+                    current_state = env.reset()
+                    done = False
+                    if not context.is_session_done():
+                        context.begin_episode()
+                    continue
+                action = context.model.get_action(current_state)
+                context.begin_step(action)
+                next_state, reward, done, _ = env.step(action)
+                context.end_step((current_state, action, reward, next_state, done))
+                current_state = next_state
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            exception = e
         history = context.get_history()
-        context.end_session()
+        context.end_session(exception)
         return history
 
     def train(self, *args, **kwargs) -> History:
@@ -405,6 +427,7 @@ class Agent(ABC):
         callbacks: Sequence[LearningEventListener] = (),
         is_training: bool = True,
         seed: Optional[int] = None,
+        experiment_name: str = "",
     ):
         """Make the context."""
         # the model is a listener only if we are training.
@@ -418,4 +441,5 @@ class Agent(ABC):
             [policy, model, *callbacks],
             is_training,
             seed=seed,
+            experiment_name=experiment_name,
         )
