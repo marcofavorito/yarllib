@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yarllib"
-version = "0.1.0"
+version = "0.2.0"
 description = "Yet Another Reinforcement Learning Library"
 authors = ["MarcoFavorito <marco.favorito@gmail.com>"]
 license = "LGPL-3.0-or-later"
