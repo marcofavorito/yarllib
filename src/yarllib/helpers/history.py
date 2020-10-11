@@ -21,11 +21,11 @@
 #
 
 """Helpers module."""
-
-from typing import List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
+from yarllib.helpers.base import array_to_list, assert_
 from yarllib.types import Action, Reward, State
 
 AgentObs = Tuple[State, Action, Reward, State]
@@ -42,7 +42,7 @@ class EpisodeHistory:
         :param observations: the list of (s, a, r, s') tuples.
         """
         # copy the argument
-        self._observations = np.array(observations, copy=True)
+        self._observations = np.array(observations, copy=True, dtype=object)
 
     @property
     def length(self) -> int:
@@ -78,6 +78,7 @@ class History:
         episodes: List[EpisodeAgentObs],
         is_training: Optional[bool] = None,
         seed: Optional[int] = None,
+        name: str = "",
     ):
         """
         Initialize a history of episodes.
@@ -86,10 +87,12 @@ class History:
                        | Each episode history is a list of tuples (s, a, r, s').
         :param is_training: whether the agent was in training mode or test mode.
         :param seed: the seed to reproduce the experiments.
+        :param name: the name of the experiment.
         """
         self._episodes = np.asarray(list(map(EpisodeHistory, episodes)))
         self._is_training = is_training
         self._seed = seed
+        self._name = name
 
     @property
     def seed(self) -> Optional[int]:
@@ -105,6 +108,11 @@ class History:
     def episodes(self) -> Sequence[EpisodeHistory]:
         """Get the list of episode histories."""
         return self._episodes
+
+    @property
+    def name(self) -> str:
+        """Get the name."""
+        return self._name
 
     @property
     def nb_episodes(self) -> int:
@@ -131,3 +139,61 @@ class History:
         return np.asarray(
             [episode_history.length for episode_history in self._episodes]
         )
+
+
+def history_to_json(h: History) -> Dict:
+    """Transform a history object to JSON."""
+    return dict(
+        seed=h.seed,
+        is_training=h.is_training,
+        episodes=[episode_history_to_json(e) for e in h.episodes],
+    )
+
+
+def episode_history_to_json(e: EpisodeHistory) -> Any:
+    """Transform a episode history to JSON."""
+    return dict(
+        observations=array_to_list(e.observations[:, 0]),
+        actions=array_to_list(e.observations[:, 1]),
+        rewards=e.rewards.tolist(),
+        last_observation=array_to_list(e.observations[-1][-1]),
+    )
+
+
+def history_from_json(o: Dict) -> History:
+    """Return a history object from JSON."""
+    only_allowed_keys = {"seed", "is_training", "episodes"}
+    assert_(
+        set(o.keys()) == only_allowed_keys,
+        f"Only the following keys are allowed: {only_allowed_keys}.",
+    )
+    is_training = o["is_training"]
+    seed = o["seed"]
+    episodes: List[EpisodeAgentObs] = [
+        agent_observations_from_json(e) for e in o["episodes"]
+    ]
+    return History(episodes=episodes, is_training=is_training, seed=seed)
+
+
+def agent_observations_from_json(o: Dict) -> EpisodeAgentObs:
+    """Return a list of agent observations from JSON."""
+    observations = o["observations"]
+    actions = o["actions"]
+    rewards = o["rewards"]
+    last_observation = o["last_observation"]
+    n = len(observations)
+    episode_observations: EpisodeAgentObs = []
+    for i in range(n - 1):
+        episode_observations.append(
+            (observations[i], actions[i], rewards[i], observations[i + 1])
+        )
+    episode_observations.append(
+        (observations[n - 1], actions[n - 1], rewards[n - 1], last_observation)
+    )
+    return episode_observations
+
+
+def episode_history_from_json(o: Dict) -> EpisodeHistory:
+    """Return an episode history object from JSON."""
+    agent_obs = agent_observations_from_json(o)
+    return EpisodeHistory(agent_obs)

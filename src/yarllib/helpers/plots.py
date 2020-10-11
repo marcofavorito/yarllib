@@ -30,6 +30,7 @@ import numpy as np
 import seaborn as sns
 from pandas import DataFrame
 
+from yarllib.helpers.base import assert_
 from yarllib.helpers.history import History
 
 
@@ -44,9 +45,10 @@ def plot_summaries(
     :param prefix: path prefix where to save the plots.
     :return: None
     """
-    assert len(history_lists) == len(
-        labels
-    ), "Please provide the correct number of labels."
+    assert_(
+        len(history_lists) == len(labels),
+        "Please provide the correct number of labels.",
+    )
     attributes = ["total_rewards", "average_rewards", "lengths"]
     figures = []
     for attribute in attributes:

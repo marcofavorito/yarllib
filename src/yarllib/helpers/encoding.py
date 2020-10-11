@@ -35,7 +35,7 @@ class Encoder:
 
     def __init__(self, input_space: MultiDiscrete):
         """
-        Initialize the encoder.
+        Initialize the space_encoder.
 
         :param input_space: the space to encode.
         """

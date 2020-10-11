@@ -23,6 +23,7 @@
 """This module contains the implementation of common RL policies."""
 
 import random
+from typing import cast
 
 import gym
 
@@ -49,7 +50,7 @@ class RandomPolicy(Policy):
         :param state: the state from where to take the decision.
         :return: the action.
         """
-        return self._action_space.sample()
+        return cast(gym.spaces.Space, self._action_space).sample()
 
 
 class GreedyPolicy(Policy):
@@ -62,7 +63,7 @@ class GreedyPolicy(Policy):
         :param state: the state from where to take the decision.
         :return: the greedy action.
         """
-        return self.context.model.get_best_action(state)
+        return self.model.get_best_action(state)
 
 
 class EpsGreedyPolicy(Policy):
@@ -85,6 +86,6 @@ class EpsGreedyPolicy(Policy):
         :return: the greedy or random action.
         """
         if random.random() < self.epsilon:
-            return self.context.environment.action_space.sample()
+            return self.action_space.sample()
         else:
-            return self.context.model.get_best_action(state)
+            return self.model.get_best_action(state)

@@ -836,6 +836,7 @@ pypandoc = ">=1.5"
 reference = "8daf4a1d140db18826b24e3ceae7c79a4700bdd2"
 type = "git"
 url = "https://github.com/marcofavorito/mkdocs-bibtex.git"
+
 [[package]]
 category = "dev"
 description = "A Material Design theme for MkDocs"
@@ -1174,7 +1175,7 @@ wcwidth = "*"
 [[package]]
 category = "dev"
 description = "Run a subprocess in a pseudo terminal"
-marker = "sys_platform != \"win32\" or os_name != \"nt\" or python_version >= \"3.3\" and sys_platform != \"win32\""
+marker = "python_version >= \"3.3\" and sys_platform != \"win32\" or sys_platform != \"win32\" or os_name != \"nt\" or python_version >= \"3.3\" and sys_platform != \"win32\" and (python_version >= \"3.3\" and sys_platform != \"win32\" or sys_platform != \"win32\")"
 name = "ptyprocess"
 optional = false
 python-versions = "*"
@@ -1790,7 +1791,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "1d40b6f45caa28204a7d55b5a222b7203641bc499f199f1970e36f757a616d7a"
+content-hash = "6295b725dee181e84fafe03aa393b60977cf4540215c528f3ba36d1b8942d1e3"
 python-versions = "^3.7"
 
 [metadata.files]

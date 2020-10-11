@@ -74,7 +74,7 @@ class LearningEventListener(ABC):
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin event."""
 
-    def on_session_end(self, *args, **kwargs) -> None:
+    def on_session_end(self, exception: Optional[Exception], *args, **kwargs) -> None:
         """On session end event."""
 
     def on_episode_begin(self, episode, **kwargs) -> None:
@@ -101,7 +101,10 @@ class HistoryCallback(LearningEventListener):
 
     def get_history(self) -> History:
         """Get the history."""
-        return History(self.episodes)
+        is_training = self.context.is_training
+        seed = self.context.seed
+        name = self.context.experiment_name
+        return History(self.episodes, is_training=is_training, seed=seed, name=name)
 
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin event."""
@@ -169,6 +172,10 @@ class FreezedModel(Model):
         """
         self._model = model
 
+    def get_best_action(self, state: State) -> Any:
+        """Get the best action."""
+        return self._model.get_best_action(state)
+
     @property
     def context(self) -> "Context":
         """Get the context."""
@@ -179,21 +186,52 @@ class FreezedModel(Model):
         """Set the context."""
         self._model._context = value
 
-    def get_best_action(self, state: State) -> None:
-        """Get the best action."""
-        return self._model.get_best_action(state)
-
-    def get_action(self, state: State) -> Any:
-        """Get the action."""
-        return self._model.get_action(state)
+    def __getattr__(self, item):
+        """Get an attribute from the underlying model."""
+        return getattr(self._model, item)
 
 
 class Policy(LearningEventListener):
     """A policy."""
 
+    _model: Optional[Model] = None
+    _action_space: Optional[gym.spaces.Space] = None
+
+    @property
+    def action_space(self) -> gym.spaces.Space:
+        """Get the action space."""
+        assert_(self._model is not None, "Action space is not set.")
+        return self._action_space
+
+    @action_space.setter
+    def action_space(self, value: Optional[gym.spaces.Space]) -> None:
+        """Get the action space."""
+        self._action_space = value
+
     @abstractmethod
     def get_action(self, state: State) -> Any:
         """Get the action."""
+
+    @property
+    def model(self) -> Model:
+        """Get the context."""
+        assert_(self._model is not None, "Model not set.")
+        return cast(Model, self._model)
+
+    @model.setter
+    def model(self, value: Optional[Model] = None) -> None:
+        """
+        Set the model`.
+
+        This method is called from the context class at the
+        beginning of each session, in order to bind
+        the listeners to the same context,
+        and and the end of each session, to unset it.
+
+        :param value: the reference to the model.
+        :return: None
+        """
+        self._model = value
 
 
 class Context:
@@ -209,6 +247,7 @@ class Context:
         listeners: Collection[LearningEventListener],
         is_training: bool,
         seed: Optional[int] = None,
+        experiment_name: str = "",
     ):
         """Initialize the context."""
         self.model = model
@@ -218,6 +257,7 @@ class Context:
         self.listeners = list(listeners) + [self.history_callback]
         self.is_training = is_training
         self.seed = seed
+        self.experiment_name = experiment_name
         self.nb_episodes = nb_episodes
         self.nb_steps = nb_steps
         self.current_step = 0
@@ -232,15 +272,21 @@ class Context:
         """Trigger the begin session event."""
         if self.seed is not None:
             self._set_seed()
+        self.policy.model = self.model
+        self.policy.action_space = self.environment.action_space
         for listener in self.listeners:
             listener.context = self
             listener.on_session_begin()
 
-    def end_session(self) -> None:
+    def end_session(self, exception: Optional[Exception] = None) -> None:
         """Trigger the end session event."""
         for listener in self.listeners:
-            listener.on_session_end()
+            listener.on_session_end(exception)
             listener._context = None
+        self.policy._model = None
+        self.policy._action_space = None
+        if exception is not None:
+            raise exception
 
     def begin_episode(self) -> None:
         """Trigger the begin episode event."""
@@ -280,7 +326,10 @@ class Context:
 
         That is: either we run out of episodes or run out of steps.
         """
-        assert self.nb_episodes is not None or self.nb_steps is not None
+        assert_(
+            self.nb_episodes is not None or self.nb_steps is not None,
+            "Please specify either 'nb_episodes' or 'nb_steps'.",
+        )
         is_beyond_max_episode = (
             self.nb_episodes is not None and self.current_episode >= self.nb_episodes
         )
@@ -316,6 +365,7 @@ class Agent(ABC):
         callbacks: Sequence[LearningEventListener] = (),
         is_training: bool = True,
         seed: Optional[int] = None,
+        experiment_name: str = "",
     ) -> History:
         """
         Run a training/testing session of the agent.
@@ -325,26 +375,40 @@ class Agent(ABC):
         :return: None.
         """
         context = self._make_context(
-            env, policy, nb_episodes, nb_steps, callbacks, is_training, seed
+            env,
+            policy,
+            nb_episodes,
+            nb_steps,
+            callbacks,
+            is_training,
+            seed,
+            experiment_name,
         )
         context.begin_session()
         done = False
         current_state = env.reset()
         context.begin_episode()
-        while not context.is_session_done():
-            if done:
-                context.end_episode()
-                current_state = env.reset()
-                done = False
-                context.begin_episode()
-                continue
-            action = context.model.get_action(current_state)
-            context.begin_step(action)
-            next_state, reward, done, _ = env.step(action)
-            context.end_step((current_state, action, reward, next_state, done))
-            current_state = next_state
+        exception = None
+        try:
+            while not context.is_session_done():
+                if done:
+                    context.end_episode()
+                    current_state = env.reset()
+                    done = False
+                    if not context.is_session_done():
+                        context.begin_episode()
+                    continue
+                action = context.model.get_action(current_state)
+                context.begin_step(action)
+                next_state, reward, done, _ = env.step(action)
+                context.end_step((current_state, action, reward, next_state, done))
+                current_state = next_state
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            exception = e
         history = context.get_history()
-        context.end_session()
+        context.end_session(exception)
         return history
 
     def train(self, *args, **kwargs) -> History:
@@ -366,6 +430,7 @@ class Agent(ABC):
         callbacks: Sequence[LearningEventListener] = (),
         is_training: bool = True,
         seed: Optional[int] = None,
+        experiment_name: str = "",
     ):
         """Make the context."""
         # the model is a listener only if we are training.
@@ -379,4 +444,5 @@ class Agent(ABC):
             [policy, model, *callbacks],
             is_training,
             seed=seed,
+            experiment_name=experiment_name,
         )

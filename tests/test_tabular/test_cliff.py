@@ -24,10 +24,10 @@
 
 import gym
 import numpy as np
-import pandas as pd
 from gym.envs.toy_text import CliffWalkingEnv
+from gym.wrappers import TimeLimit
 
-from yarllib.helpers.experiment_utils import run_experiments
+from yarllib.experiment_utils import run_experiments
 from yarllib.models.tabular import TabularQLearning, TabularSarsa
 from yarllib.policies import EpsGreedyPolicy
 
@@ -45,7 +45,9 @@ class CliffWalkingEnvWrapper(gym.Wrapper):
 
 def test_cliff():
     """Test that Sarsa > QLearning in the Cliff Environment."""
-    env = CliffWalkingEnvWrapper(CliffWalkingEnv())
+    env = CliffWalkingEnv()
+    env = CliffWalkingEnvWrapper(env)
+    env = TimeLimit(env, max_episode_steps=50)
 
     def make_sarsa():
         return TabularSarsa(env.observation_space, env.action_space).agent()
@@ -54,30 +56,25 @@ def test_cliff():
         return TabularQLearning(env.observation_space, env.action_space).agent()
 
     nb_episodes = 500
-    nb_runs = 50
+    nb_runs = 5
     policy = EpsGreedyPolicy(0.1)
 
-    sarsa_histories = run_experiments(
+    _, sarsa_histories = run_experiments(
         make_sarsa, env, policy, nb_runs=nb_runs, nb_episodes=nb_episodes
     )
-    qlearning_histories = run_experiments(
+    _, qlearning_histories = run_experiments(
         make_qlearning, env, policy, nb_runs=nb_runs, nb_episodes=nb_episodes
     )
 
-    sarsa_total_rewards = pd.DataFrame(
-        np.asarray([h.total_rewards for h in sarsa_histories])
-    )
-    qlearning_total_rewards = pd.DataFrame(
-        np.asarray([h.total_rewards for h in qlearning_histories])
-    )
+    assert len(sarsa_histories) == 5
+    assert len(qlearning_histories) == 5
 
-    sarsa_last_reward = sarsa_total_rewards.mean(axis=0).iloc[-1]
-    qlearning_last_reward = qlearning_total_rewards.mean(axis=0).iloc[-1]
+    sarsa_total_rewards = np.asarray([h.total_rewards for h in sarsa_histories])
+    qlearning_total_rewards = np.asarray([h.total_rewards for h in qlearning_histories])
 
-    # test that they learned
-    assert sarsa_last_reward > -30
-    assert qlearning_last_reward > -40
+    sarsa_last_reward_avg = sarsa_total_rewards.mean(axis=0)[-100:].mean()
+    qlearning_last_reward_avg = qlearning_total_rewards.mean(axis=0)[-100:].mean()
 
     # compare sarsa and q-learning on the averaged total reward in the last episode
-    # sarsa is better than q-learning
-    assert sarsa_last_reward > qlearning_last_reward
+    # sarsa is always better than q-learning
+    assert sarsa_last_reward_avg > -30 > qlearning_last_reward_avg > -40
