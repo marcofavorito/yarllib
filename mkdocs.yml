@@ -7,7 +7,7 @@ nav:
 - Quickstart: "quickstart.ipynb"
 - Authors: authors.md
 - How to contribute: contributing.md
-- How to contribute: history.md
+- Changelog: history.md
 - References: references.md
 
 
