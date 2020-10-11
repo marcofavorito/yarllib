@@ -36,7 +36,9 @@ def test_frozenlake(model_class, sparse):
     """Test Q-Learning implementation on N-Chain environment."""
     env = FrozenLakeEnv(is_slippery=False)
     env = TimeLimit(env, max_episode_steps=env.observation_space.n * 5)
-    agent = model_class(env.observation_space, env.action_space, gamma=0.9).agent()
-    agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=75000)
+    agent = model_class(
+        env.observation_space, env.action_space, gamma=0.8, sparse=sparse
+    ).agent()
+    agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=30000)
     evaluation = agent.test(env, policy=GreedyPolicy(), nb_episodes=10)
     assert evaluation.total_rewards.mean() == 1.0
