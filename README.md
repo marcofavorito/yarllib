@@ -115,3 +115,16 @@ Copyright 2020 Marco Favorito
 ## Authors
 
 - [Marco Favorito](https://marcofavorito.github.io/)
+
+## Cite
+
+If you use this library for your research, please consider citing this repository:
+
+```
+@misc{favorito2020,
+  Author = {Marco Favorito},
+  Title = {yarllib: Yet Another Reinforcement Learning Library},
+  Year = {2020},
+}
+```
+An e-print will come soon :-) 
