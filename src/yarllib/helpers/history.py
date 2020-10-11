@@ -25,7 +25,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from yarllib.helpers.base import array_to_list
+from yarllib.helpers.base import array_to_list, assert_
 from yarllib.types import Action, Reward, State
 
 AgentObs = Tuple[State, Action, Reward, State]
@@ -162,7 +162,11 @@ def episode_history_to_json(e: EpisodeHistory) -> Any:
 
 def history_from_json(o: Dict) -> History:
     """Return a history object from JSON."""
-    assert set(o.keys()) == {"seed", "is_training", "episodes"}
+    only_allowed_keys = {"seed", "is_training", "episodes"}
+    assert_(
+        set(o.keys()) == only_allowed_keys,
+        f"Only the following keys are allowed: {only_allowed_keys}.",
+    )
     is_training = o["is_training"]
     seed = o["seed"]
     episodes: List[EpisodeAgentObs] = [

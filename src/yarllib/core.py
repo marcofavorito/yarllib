@@ -172,6 +172,10 @@ class FreezedModel(Model):
         """
         self._model = model
 
+    def get_best_action(self, state: State) -> Any:
+        """Get the best action."""
+        return self._model.get_best_action(state)
+
     @property
     def context(self) -> "Context":
         """Get the context."""
@@ -182,13 +186,9 @@ class FreezedModel(Model):
         """Set the context."""
         self._model._context = value
 
-    def get_best_action(self, state: State) -> None:
-        """Get the best action."""
-        return self._model.get_best_action(state)
-
-    def get_action(self, state: State) -> Any:
-        """Get the action."""
-        return self._model.get_action(state)
+    def __getattr__(self, item):
+        """Get an attribute from the underlying model."""
+        return getattr(self._model, item)
 
 
 class Policy(LearningEventListener):
@@ -326,7 +326,10 @@ class Context:
 
         That is: either we run out of episodes or run out of steps.
         """
-        assert self.nb_episodes is not None or self.nb_steps is not None
+        assert_(
+            self.nb_episodes is not None or self.nb_steps is not None,
+            "Please specify either 'nb_episodes' or 'nb_steps'.",
+        )
         is_beyond_max_episode = (
             self.nb_episodes is not None and self.current_episode >= self.nb_episodes
         )

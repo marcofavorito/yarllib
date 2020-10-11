@@ -116,7 +116,7 @@ class SparseTable:
 
     def __init__(self, *args):
         """Initialize the sparse table."""
-        assert len(args) == 2, "Only two-dimensional matrices can be represented."
+        assert_(len(args) == 2, "Only two-dimensional matrices can be represented.")
         self._rows, self._cols = args
         self._m = defaultdict(partial(self._initialize_row, self._cols))
 
@@ -125,6 +125,9 @@ class SparseTable:
         if self._is_index_type(key):
             assert_(0 <= key < self._rows, f"Row index {key} out of bound.")
             if key not in self._m.keys():
+                # the following statement has the effect
+                # to instantiate missing Q-values for some key
+                # thanks to how 'defaultdict' works.
                 self._m[key]
             return self._m[key]
         if len(key) == 2:
