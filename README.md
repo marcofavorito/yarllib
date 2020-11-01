@@ -9,6 +9,7 @@
   <a href="https://pypi.org/project/yarllib">
     <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/yarllib" />
   </a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib.svg?type=shield"/></a>
   <a href="">
     <img alt="PyPI - Status" src="https://img.shields.io/pypi/status/yarllib" />
   </a>
@@ -55,6 +56,9 @@
 Yet Another Reinforcement Learning Library.
 
 Status: **development**.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib?ref=badge_large)
 
 ## Why?
 
@@ -127,4 +131,4 @@ If you use this library for your research, please consider citing this repositor
   Year = {2020},
 }
 ```
-An e-print will come soon :-) 
+An e-print will come soon :-)
