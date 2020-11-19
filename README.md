@@ -9,8 +9,6 @@
   <a href="https://pypi.org/project/yarllib">
     <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/yarllib" />
   </a>
-<a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib.svg?type=shield"/></a>
-  <a href="">
     <img alt="PyPI - Status" src="https://img.shields.io/pypi/status/yarllib" />
   </a>
   <a href="">
@@ -36,6 +34,8 @@
   <a href="https://codecov.io/gh/marcofavorito/yarllib">
     <img alt="codecov" src="https://codecov.io/gh/marcofavorito/yarllib/branch/master/graph/badge.svg?token=FG3ATGP5P5">
   </a>
+  <a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib.svg?type=shield"/></a>
+  <a href="">
 </p>
 <p align="center">
   <a href="https://img.shields.io/badge/flake8-checked-blueviolet">
@@ -52,13 +52,12 @@
   </a>
 </p>
 
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib?ref=badge_large)
 
 Yet Another Reinforcement Learning Library.
 
 Status: **development**.
 
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmarcofavorito%2Fyarllib?ref=badge_large)
 
 ## Why?
 
