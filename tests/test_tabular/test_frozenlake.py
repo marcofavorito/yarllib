@@ -22,11 +22,12 @@
 
 """Test the Q-Learning and Sarsa implementation using FrozenLake."""
 
+import numpy as np
 import pytest
 from gym.envs.toy_text import FrozenLakeEnv
 from gym.wrappers import TimeLimit
 
-from yarllib.models.tabular import TabularQLearning, TabularSarsa
+from yarllib.learning.tabular import TabularQLearning, TabularSarsa
 from yarllib.policies import EpsGreedyPolicy, GreedyPolicy
 
 
@@ -41,4 +42,4 @@ def test_frozenlake(model_class, sparse):
     ).agent()
     agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=30000)
     evaluation = agent.test(env, policy=GreedyPolicy(), nb_episodes=10)
-    assert evaluation.total_rewards.mean() == 1.0
+    assert np.isclose(evaluation.total_rewards.mean(), 1.0)

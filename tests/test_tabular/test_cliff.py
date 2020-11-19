@@ -22,32 +22,17 @@
 
 """Test the Q-Learning and Sarsa implementation using Cliff."""
 
-import gym
 import numpy as np
-from gym.envs.toy_text import CliffWalkingEnv
-from gym.wrappers import TimeLimit
 
+from tests.helpers import make_cliff
 from yarllib.experiment_utils import run_experiments
-from yarllib.models.tabular import TabularQLearning, TabularSarsa
+from yarllib.learning.tabular import TabularQLearning, TabularSarsa
 from yarllib.policies import EpsGreedyPolicy
-
-
-class CliffWalkingEnvWrapper(gym.Wrapper):
-    """A wrapper to the CliffWalking environment."""
-
-    def step(self, action):
-        """Stop the episode when the cliff is reached."""
-        s, r, d, i = super().step(action)
-        if r == -100:
-            d = True
-        return s, r, d, i
 
 
 def test_cliff():
     """Test that Sarsa > QLearning in the Cliff Environment."""
-    env = CliffWalkingEnv()
-    env = CliffWalkingEnvWrapper(env)
-    env = TimeLimit(env, max_episode_steps=50)
+    env = make_cliff()
 
     def make_sarsa():
         return TabularSarsa(env.observation_space, env.action_space).agent()
