@@ -21,7 +21,7 @@
 #
 
 """This module implements Dynamic Programming algorithms (e.g. Value Iteration, Policy Iteration etc.)."""
-
+import logging
 from abc import abstractmethod
 from typing import List
 
@@ -32,6 +32,8 @@ from gym.spaces import Discrete
 from yarllib.base import AbstractAgent
 from yarllib.helpers.base import get_machine_epsilon
 from yarllib.helpers.history import AgentObs, History
+
+logger = logging.getLogger(__name__)
 
 
 class GPIAgent(AbstractAgent):
@@ -47,19 +49,21 @@ class GPIAgent(AbstractAgent):
         self.nA = self.action_space.n
         self.discount = discount
 
-    def train(self, env: DiscreteEnv, *args, nb_iterations: int = 50, **kwargs):
+    def train(self, env: DiscreteEnv, *args, max_nb_iterations: int = 50, **kwargs):
         """
         Train the agent.
 
         :param env: the environment to train on.
-        :param nb_iterations: the number of iterations.
+        :param max_nb_iterations: the number of iterations.
         :return:
         """
-        for _ in range(nb_iterations):
+        _i = 0
+        for _i in range(max_nb_iterations):
             if self.can_stop():
                 break
             self.evaluation(env)
             self.improvement(env)
+        logger.debug("Training number of iterations: %s", _i)
 
     def test(self, env: DiscreteEnv, *args, nb_episodes: int = 10, **kwargs) -> History:
         """Test the agent."""
@@ -151,7 +155,7 @@ class ValueIterationAgent(GPIAgent):
     """
     The Value Iteration algorithm.
 
-    differently from the abstract class, the nb_iterations
+    differently from the abstract class, the max_nb_iterations
     parameter to the 'train' method is ignored.
     """
 
