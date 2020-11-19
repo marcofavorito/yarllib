@@ -26,7 +26,7 @@ import pytest
 from gym.envs.toy_text import FrozenLakeEnv
 from gym.wrappers import TimeLimit
 
-from yarllib.models.tabular import TabularQLearning, TabularSarsa
+from yarllib.learning.tabular import TabularQLearning, TabularSarsa
 from yarllib.policies import EpsGreedyPolicy, GreedyPolicy
 
 

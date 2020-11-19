@@ -29,6 +29,7 @@ from typing import Any, Collection, List, Optional, Sequence, cast
 import gym
 import numpy as np
 
+from yarllib.base import AbstractAgent
 from yarllib.helpers.base import assert_
 from yarllib.helpers.history import AgentObs, EpisodeAgentObs, History
 from yarllib.types import AgentObservation, State
@@ -339,9 +340,9 @@ class Context:
         return is_beyond_max_episode or is_beyond_max_step
 
 
-class Agent(ABC):
+class Agent(AbstractAgent):
     """
-    The agent class.
+    A learning agent.
 
     This is where the main training/testing loop is implemented.
     This class acts as an orchestrator between all the components
@@ -446,3 +447,7 @@ class Agent(ABC):
             seed=seed,
             experiment_name=experiment_name,
         )
+
+    def get_best_action(self, state):
+        """Get the best action."""
+        return self.model.get_best_action(state)

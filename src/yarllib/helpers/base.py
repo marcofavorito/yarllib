@@ -168,3 +168,8 @@ def array_to_list(array):
         return tuple(array_to_list(item) for item in array)
     else:
         return to_native_type(array)
+
+
+def get_machine_epsilon() -> float:
+    """Get machine epsilon."""
+    return np.finfo(float).eps
