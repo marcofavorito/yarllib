@@ -64,7 +64,7 @@ parametrize_discrete_env = pytest.mark.parametrize(
         (make_cliff(), -13.0, 1, 0.99),
         (FrozenLakeEnv(is_slippery=False), 1.0, 1, 0.99),
         (FrozenLakeEnv(is_slippery=True), 0.82, 1000, 0.99),
-        (TaxiEnv(), 7.99, 300, 0.99),
+        (TaxiEnv(), 7.99, 1000, 0.99),
     ],
 )
 

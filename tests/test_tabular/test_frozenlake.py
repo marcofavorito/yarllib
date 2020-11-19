@@ -40,7 +40,7 @@ def test_frozenlake(model_class, sparse):
     agent = model_class(
         env.observation_space, env.action_space, gamma=0.9, sparse=sparse
     ).agent()
-    agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=30000)
+    agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=40000)
     evaluation = agent.test(env, policy=GreedyPolicy(), nb_episodes=10)
     actual_total_rewards_mean = evaluation.total_rewards.mean()
     assert np.isclose(actual_total_rewards_mean, 1.0)
