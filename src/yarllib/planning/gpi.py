@@ -23,8 +23,9 @@
 """This module implements Dynamic Programming algorithms (e.g. Value Iteration, Policy Iteration etc.)."""
 import logging
 from abc import abstractmethod
-from typing import List
+from typing import List, Optional
 
+import gym
 import numpy as np
 from gym.envs.toy_text.discrete import DiscreteEnv
 from gym.spaces import Discrete
@@ -40,14 +41,14 @@ class GPIAgent(AbstractAgent):
     """A Generalized Policy Iteration agent."""
 
     def __init__(
-        self, observation_space: Discrete, action_space: Discrete, discount: float = 0.9
+        self, observation_space: Discrete, action_space: Discrete, gamma: float = 0.9
     ):
         """Initialize a GPI agent."""
         self.observation_space = observation_space
         self.action_space = action_space
         self.nS = self.observation_space.n
         self.nA = self.action_space.n
-        self.discount = discount
+        self.gamma = gamma
 
     def train(self, env: DiscreteEnv, *args, max_nb_iterations: int = 50, **kwargs):
         """
@@ -65,7 +66,15 @@ class GPIAgent(AbstractAgent):
             self.improvement(env)
         logger.debug("Training number of iterations: %s", _i)
 
-    def test(self, env: DiscreteEnv, *args, nb_episodes: int = 10, **kwargs) -> History:
+    def test(
+        self,
+        env: gym.Env,
+        *args,
+        nb_episodes: int = 10,
+        seed: Optional[int] = None,
+        experiment_name: str = "",
+        **_kwargs
+    ) -> History:
         """Test the agent."""
         history: List[List[AgentObs]] = []
         current_episode: List[AgentObs] = []
@@ -79,7 +88,7 @@ class GPIAgent(AbstractAgent):
                 s = sp
             history.append(current_episode)
             current_episode = []
-        return History(history)
+        return History(history, is_training=False, seed=seed, name=experiment_name)
 
     @abstractmethod
     def evaluation(self, env: DiscreteEnv):
@@ -126,7 +135,7 @@ class PolicyIterationAgent(GPIAgent):
         """Get the next value, given state and action."""
         return sum(
             [
-                p * (r + self.discount * self.v[sp])
+                p * (r + self.gamma * self.v[sp])
                 for (p, sp, r, _done) in env.P[state][action]
             ]
         )
@@ -188,7 +197,7 @@ class ValueIterationAgent(GPIAgent):
         return [
             sum(
                 [
-                    p * (r + self.discount * self.v[sp])
+                    p * (r + self.gamma * self.v[sp])
                     for (p, sp, r, _done) in env.P[state][action]
                 ]
             )

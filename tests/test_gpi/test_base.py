@@ -58,7 +58,7 @@ class TwoCells(DiscreteEnv):
 
 
 parametrize_discrete_env = pytest.mark.parametrize(
-    "env,optimal_reward,nb_episodes,discount",
+    "env,optimal_reward,nb_episodes,gamma",
     [
         (TimeLimit(TwoCells(), max_episode_steps=100), 50.0, 1, 0.99),
         (make_cliff(), -13.0, 1, 0.99),
