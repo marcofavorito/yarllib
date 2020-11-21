@@ -21,7 +21,7 @@
 #
 
 """This module includes utilities to run many experiments."""
-
+import logging
 import multiprocessing
 from functools import partial
 from typing import Callable, List, Optional, Sequence, Tuple, Union
@@ -93,8 +93,22 @@ def run_experiments(
     )
     env = make_env() if callable(make_env) else make_env
     agent = make_agent(env)
-    pool = multiprocessing.Pool(processes=nb_workers)
     _current_seed_to_str = partial(_seed_to_str, max(seeds))
+
+    if nb_runs == 1:
+        logging.warning(f"Not using multiprocessing because nb_runs={nb_runs}")
+        agent, history = _do_job(
+            agent,
+            env,
+            policy,
+            seeds[0],
+            nb_episodes,
+            callbacks,
+            name_prefix + "-" + _current_seed_to_str(seeds[0]),
+        )
+        return [agent], [history]
+
+    pool = multiprocessing.Pool(processes=nb_workers)
     results = [
         pool.apply_async(
             _do_job,

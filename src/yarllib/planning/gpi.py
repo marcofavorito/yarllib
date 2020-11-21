@@ -71,7 +71,6 @@ class GPIAgent(AbstractAgent):
     def test(
         self,
         env: gym.Env,
-        *args,
         policy: Optional[Policy] = None,
         nb_episodes: int = 10,
         seed: Optional[int] = None,
@@ -93,7 +92,7 @@ class GPIAgent(AbstractAgent):
             done = False
             s = env.reset()
             while not done:
-                a = self.get_best_action(s)
+                a = policy.get_action(s)
                 sp, r, done, info = env.step(a)
                 current_episode.append((s, a, r, sp))
                 s = sp
