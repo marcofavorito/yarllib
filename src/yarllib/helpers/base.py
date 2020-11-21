@@ -21,9 +21,10 @@
 #
 
 """Base helper module."""
+import random
 from collections import defaultdict
 from functools import partial, singledispatch
-from typing import Any
+from typing import Any, Optional
 
 import gym
 import numpy as np
@@ -173,3 +174,16 @@ def array_to_list(array):
 def get_machine_epsilon() -> float:
     """Get machine epsilon."""
     return np.finfo(float).eps
+
+
+def set_seed(seed: Optional[int]) -> None:
+    """Set seed."""
+    random.seed(seed)
+    np.random.seed(seed)
+
+
+def set_env_seed(seed: Optional[int], env: gym.Env) -> None:
+    """Set seed to a OpenAI Gym environment."""
+    env.seed(seed)
+    env.observation_space.seed(seed)
+    env.action_space.seed(seed)

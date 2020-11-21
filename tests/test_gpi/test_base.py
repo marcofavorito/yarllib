@@ -71,9 +71,9 @@ parametrize_discrete_env = pytest.mark.parametrize(
 
 @parametrize_discrete_env
 @pytest.mark.parametrize("agent_type", [ValueIterationAgent, PolicyIterationAgent])
-def test_gpi(agent_type, env, optimal_reward, nb_episodes, discount):
+def test_gpi(agent_type, env, optimal_reward, nb_episodes, gamma):
     """Test GPI algorithms."""
-    agent = agent_type(env.observation_space, env.action_space, discount=discount)
+    agent = agent_type(env.observation_space, env.action_space, gamma=gamma)
     agent.train(env)
     history = agent.test(env, nb_episodes=nb_episodes)
     actual_optimal_reward = np.mean(history.total_rewards)

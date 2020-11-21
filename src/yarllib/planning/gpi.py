@@ -31,8 +31,10 @@ from gym.envs.toy_text.discrete import DiscreteEnv
 from gym.spaces import Discrete
 
 from yarllib.base import AbstractAgent
-from yarllib.helpers.base import get_machine_epsilon
+from yarllib.core import Policy
+from yarllib.helpers.base import get_machine_epsilon, set_env_seed, set_seed
 from yarllib.helpers.history import AgentObs, History
+from yarllib.policies import GreedyPolicy
 
 logger = logging.getLogger(__name__)
 
@@ -70,12 +72,21 @@ class GPIAgent(AbstractAgent):
         self,
         env: gym.Env,
         *args,
+        policy: Optional[Policy] = None,
         nb_episodes: int = 10,
         seed: Optional[int] = None,
         experiment_name: str = "",
         **_kwargs
     ) -> History:
         """Test the agent."""
+        if policy is None:
+            policy = GreedyPolicy()
+        policy.action_space = env.action_space
+        policy.model = self
+
+        set_seed(seed)
+        set_env_seed(seed, env)
+
         history: List[List[AgentObs]] = []
         current_episode: List[AgentObs] = []
         for _ in range(nb_episodes):
