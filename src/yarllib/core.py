@@ -239,6 +239,7 @@ class Context:
     def __init__(
         self,
         environment: gym.Env,
+        agent: AbstractAgent,
         model: Model,
         policy: Policy,
         nb_episodes: Optional[int],
@@ -250,6 +251,7 @@ class Context:
     ):
         """Initialize the context."""
         self.model = model
+        self.agent = agent
         self.environment = environment
         self.policy = policy
         self.history_callback = HistoryCallback()
@@ -433,6 +435,7 @@ class Agent(AbstractAgent):
         model = self.model.freeze() if not is_training else self.model
         return Context(
             env,
+            self,
             model,
             policy,
             nb_episodes,

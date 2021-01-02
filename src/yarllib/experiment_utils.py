@@ -60,7 +60,7 @@ def _seed_to_str(max_seed: int, seed: int) -> str:
 def run_experiments(
     make_agent: Callable[[gym.Env], AbstractAgent],
     make_env: Union[Callable[[], gym.Env], gym.Env],  # TODO: use only callable
-    policy: Policy,
+    make_policy: Callable[[gym.Env], Policy],
     nb_runs: int = 50,
     nb_episodes: int = 500,
     nb_workers: int = 8,
@@ -93,6 +93,7 @@ def run_experiments(
     )
     env = make_env() if callable(make_env) else make_env
     agent = make_agent(env)
+    policy = make_policy(env)
     _current_seed_to_str = partial(_seed_to_str, max(seeds))
 
     if nb_runs == 1:

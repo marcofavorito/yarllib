@@ -228,4 +228,7 @@ class ValueIterationAgent(GPIAgent):
 
     def get_best_action(self, state):
         """Get the best action from a state."""
-        return self.pi[state]
+        if self.observation_space.contains(state):
+            return self.pi[state]
+        else:
+            return self.action_space.sample()
