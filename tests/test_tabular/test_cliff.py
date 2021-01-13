@@ -21,7 +21,7 @@
 #
 
 """Test the Q-Learning and Sarsa implementation using Cliff."""
-
+import gym
 import numpy as np
 
 from tests.helpers import make_cliff
@@ -34,15 +34,15 @@ def test_cliff():
     """Test that Sarsa > QLearning in the Cliff Environment."""
     env = make_cliff()
 
-    def make_sarsa():
+    def make_sarsa(env: gym.Env):
         return TabularSarsa(env.observation_space, env.action_space).agent()
 
-    def make_qlearning():
+    def make_qlearning(env: gym.Env):
         return TabularQLearning(env.observation_space, env.action_space).agent()
 
     nb_episodes = 500
     nb_runs = 5
-    policy = EpsGreedyPolicy(0.1)
+    policy = lambda _: EpsGreedyPolicy(0.1)  # noqa
 
     _, sarsa_histories = run_experiments(
         make_sarsa, env, policy, nb_runs=nb_runs, nb_episodes=nb_episodes
