@@ -22,15 +22,13 @@
 
 """This module contains core library functions and classes."""
 
-import random
 from abc import ABC, abstractmethod
 from typing import Any, Collection, List, Optional, Sequence, cast
 
 import gym
-import numpy as np
 
 from yarllib.base import AbstractAgent
-from yarllib.helpers.base import assert_
+from yarllib.helpers.base import assert_, set_env_seed, set_seed
 from yarllib.helpers.history import AgentObs, EpisodeAgentObs, History
 from yarllib.types import AgentObservation, State
 
@@ -241,6 +239,7 @@ class Context:
     def __init__(
         self,
         environment: gym.Env,
+        agent: AbstractAgent,
         model: Model,
         policy: Policy,
         nb_episodes: Optional[int],
@@ -252,6 +251,7 @@ class Context:
     ):
         """Initialize the context."""
         self.model = model
+        self.agent = agent
         self.environment = environment
         self.policy = policy
         self.history_callback = HistoryCallback()
@@ -315,11 +315,8 @@ class Context:
 
     def _set_seed(self):
         """Set the random seed."""
-        random.seed(self.seed)
-        np.random.seed(self.seed)
-        self.environment.seed(self.seed)
-        self.environment.observation_space.seed(self.seed)
-        self.environment.action_space.seed(self.seed)
+        set_seed(self.seed)
+        set_env_seed(self.seed, self.environment)
 
     def is_session_done(self) -> bool:
         """
@@ -438,6 +435,7 @@ class Agent(AbstractAgent):
         model = self.model.freeze() if not is_training else self.model
         return Context(
             env,
+            self,
             model,
             policy,
             nb_episodes,

@@ -21,14 +21,15 @@
 #
 
 """This module includes utilities to run many experiments."""
-
+import logging
 import multiprocessing
 from functools import partial
-from typing import Callable, List, Optional, Sequence, Tuple
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import gym
 
-from yarllib.core import Agent, LearningEventListener, Policy
+from yarllib.base import AbstractAgent
+from yarllib.core import LearningEventListener, Policy
 from yarllib.helpers.base import assert_
 from yarllib.helpers.history import History
 
@@ -57,21 +58,21 @@ def _seed_to_str(max_seed: int, seed: int) -> str:
 
 
 def run_experiments(
-    make_agent: Callable,
-    env: gym.Env,
-    policy: Policy,
+    make_agent: Callable[[gym.Env], AbstractAgent],
+    make_env: Union[Callable[[], gym.Env], gym.Env],  # TODO: use only callable
+    make_policy: Callable[[gym.Env], Policy],
     nb_runs: int = 50,
     nb_episodes: int = 500,
     nb_workers: int = 8,
     seeds: Optional[Sequence[int]] = None,
     callbacks: Sequence[LearningEventListener] = (),
     name_prefix: str = "experiment",
-) -> Tuple[List[Agent], List[History]]:
+) -> Tuple[List[AbstractAgent], List[History]]:
     """
     Run many experiments with multiprocessing.
 
     :param make_agent: a callable to make an agent.
-    :param env: the environment to use.
+    :param env: the environment to use, or a factory function.
     :param policy: the policy.
     :param nb_runs: the number of runs.
     :param nb_episodes: the number of episodes.
@@ -90,9 +91,25 @@ def run_experiments(
         len(seeds) == nb_runs,
         f"The number of seeds {len(seeds)} is different from the number of runs {nb_runs}.",
     )
-    agent = make_agent()
-    pool = multiprocessing.Pool(processes=nb_workers)
+    env = make_env() if callable(make_env) else make_env
+    agent = make_agent(env)
+    policy = make_policy(env)
     _current_seed_to_str = partial(_seed_to_str, max(seeds))
+
+    if nb_runs == 1:
+        logging.warning(f"Not using multiprocessing because nb_runs={nb_runs}")
+        agent, history = _do_job(
+            agent,
+            env,
+            policy,
+            seeds[0],
+            nb_episodes,
+            callbacks,
+            name_prefix + "-" + _current_seed_to_str(seeds[0]),
+        )
+        return [agent], [history]
+
+    pool = multiprocessing.Pool(processes=nb_workers)
     results = [
         pool.apply_async(
             _do_job,

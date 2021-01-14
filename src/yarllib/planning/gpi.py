@@ -23,15 +23,18 @@
 """This module implements Dynamic Programming algorithms (e.g. Value Iteration, Policy Iteration etc.)."""
 import logging
 from abc import abstractmethod
-from typing import List
+from typing import List, Optional
 
+import gym
 import numpy as np
 from gym.envs.toy_text.discrete import DiscreteEnv
 from gym.spaces import Discrete
 
 from yarllib.base import AbstractAgent
-from yarllib.helpers.base import get_machine_epsilon
+from yarllib.core import Policy
+from yarllib.helpers.base import get_machine_epsilon, set_env_seed, set_seed
 from yarllib.helpers.history import AgentObs, History
+from yarllib.policies import GreedyPolicy
 
 logger = logging.getLogger(__name__)
 
@@ -40,14 +43,14 @@ class GPIAgent(AbstractAgent):
     """A Generalized Policy Iteration agent."""
 
     def __init__(
-        self, observation_space: Discrete, action_space: Discrete, discount: float = 0.9
+        self, observation_space: Discrete, action_space: Discrete, gamma: float = 0.9
     ):
         """Initialize a GPI agent."""
         self.observation_space = observation_space
         self.action_space = action_space
         self.nS = self.observation_space.n
         self.nA = self.action_space.n
-        self.discount = discount
+        self.gamma = gamma
 
     def train(self, env: DiscreteEnv, *args, max_nb_iterations: int = 50, **kwargs):
         """
@@ -65,21 +68,37 @@ class GPIAgent(AbstractAgent):
             self.improvement(env)
         logger.debug("Training number of iterations: %s", _i)
 
-    def test(self, env: DiscreteEnv, *args, nb_episodes: int = 10, **kwargs) -> History:
+    def test(
+        self,
+        env: gym.Env,
+        policy: Optional[Policy] = None,
+        nb_episodes: int = 10,
+        seed: Optional[int] = None,
+        experiment_name: str = "",
+        **_kwargs
+    ) -> History:
         """Test the agent."""
+        if policy is None:
+            policy = GreedyPolicy()
+        policy.action_space = env.action_space
+        policy.model = self
+
+        set_seed(seed)
+        set_env_seed(seed, env)
+
         history: List[List[AgentObs]] = []
         current_episode: List[AgentObs] = []
         for _ in range(nb_episodes):
             done = False
             s = env.reset()
             while not done:
-                a = self.get_best_action(s)
+                a = policy.get_action(s)
                 sp, r, done, info = env.step(a)
                 current_episode.append((s, a, r, sp))
                 s = sp
             history.append(current_episode)
             current_episode = []
-        return History(history)
+        return History(history, is_training=False, seed=seed, name=experiment_name)
 
     @abstractmethod
     def evaluation(self, env: DiscreteEnv):
@@ -126,7 +145,7 @@ class PolicyIterationAgent(GPIAgent):
         """Get the next value, given state and action."""
         return sum(
             [
-                p * (r + self.discount * self.v[sp])
+                p * (r + self.gamma * self.v[sp])
                 for (p, sp, r, _done) in env.P[state][action]
             ]
         )
@@ -188,7 +207,7 @@ class ValueIterationAgent(GPIAgent):
         return [
             sum(
                 [
-                    p * (r + self.discount * self.v[sp])
+                    p * (r + self.gamma * self.v[sp])
                     for (p, sp, r, _done) in env.P[state][action]
                 ]
             )
@@ -209,4 +228,7 @@ class ValueIterationAgent(GPIAgent):
 
     def get_best_action(self, state):
         """Get the best action from a state."""
-        return self.pi[state]
+        if self.observation_space.contains(state):
+            return self.pi[state]
+        else:
+            return self.action_space.sample()
