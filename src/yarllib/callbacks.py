@@ -24,10 +24,12 @@
 import logging
 import shutil
 from pathlib import Path
+from typing import Optional
 
 from PIL import Image
 
 from yarllib.core import LearningEventListener
+from yarllib.helpers.base import assert_
 from yarllib.types import AgentObservation
 
 
@@ -51,16 +53,28 @@ class LoggingCallback(LearningEventListener):
     """Callback for logging purposes."""
 
     def __init__(
-        self, logger_name: str, level: int = logging.INFO, log_interval: int = 100
+        self,
+        logger: Optional[logging.Logger] = None,
+        logger_name: Optional[str] = None,
+        level: int = logging.INFO,
+        log_interval: int = 100,
     ):
         """
         Initialize the logger callback.
 
+        Either logger is not None, or the logger name must be provided.
+
+        :param logger: the logger object.
         :param logger_name: the logger name.
         :param level: the logging level.
         :param log_interval: the episode interval when to log messages.
         """
-        self.logger = logging.getLogger(logger_name)
+        assert_(bool(logger is not None) != bool(logger_name is not None))
+
+        if logger is not None:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(level)
         self.log_interval = log_interval
 
