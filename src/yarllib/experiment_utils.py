@@ -29,21 +29,23 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 import gym
 
 from yarllib.base import AbstractAgent
-from yarllib.core import LearningEventListener, Policy
+from yarllib.core import HistoryCallback, LearningEventListener, Policy
 from yarllib.helpers.base import assert_
 from yarllib.helpers.history import History
 
 
 def _do_job(agent, env, policy, seed, nb_episodes, callbacks, experiment_name):
     """Run the agent training."""
-    history = agent.train(
+    history_callback = HistoryCallback()
+    agent.train(
         env,
         policy,
         nb_episodes=nb_episodes,
         seed=seed,
-        callbacks=callbacks,
+        callbacks=list([history_callback, *callbacks]),
         experiment_name=experiment_name,
     )
+    history = history_callback.get_history()
     return agent, history
 
 

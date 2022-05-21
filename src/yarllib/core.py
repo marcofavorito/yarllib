@@ -89,7 +89,15 @@ class LearningEventListener(ABC):
         """On step end event."""
 
 
-class HistoryCallback(LearningEventListener):
+class BaseHistoryCallback(LearningEventListener):
+    """Record an entire history of a simulation with the environment."""
+
+    @abstractmethod
+    def get_history(self) -> History:
+        """Get the history object."""
+
+
+class HistoryCallback(BaseHistoryCallback):
     """Record an entire history of a simulation with the environment."""
 
     def __init__(self):
@@ -98,17 +106,24 @@ class HistoryCallback(LearningEventListener):
         self.current_episode: List[AgentObs] = []
         self.episodes: List[EpisodeAgentObs] = []
 
+        self._is_training: Optional[bool] = None
+        self._seed: Optional[int] = None
+        self._experiment_name: Optional[str] = None
+
     def get_history(self) -> History:
         """Get the history."""
-        is_training = self.context.is_training
-        seed = self.context.seed
-        name = self.context.experiment_name
+        is_training = cast(bool, self._is_training)
+        seed = self._seed
+        name = cast(str, self._experiment_name)
         return History(self.episodes, is_training=is_training, seed=seed, name=name)
 
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin event."""
         self.current_episode = []
         self.episodes = []
+        self._is_training = self.context.is_training
+        self._seed = self.context.seed
+        self._experiment_name = self.context.experiment_name
 
     def on_step_end(self, step, agent_observation: AgentObservation, **kwargs) -> None:
         """On step end event."""
@@ -254,8 +269,7 @@ class Context:
         self.agent = agent
         self.environment = environment
         self.policy = policy
-        self.history_callback = HistoryCallback()
-        self.listeners = list(listeners) + [self.history_callback]
+        self.listeners = list(listeners)
         self.is_training = is_training
         self.seed = seed
         self.experiment_name = experiment_name
@@ -264,10 +278,6 @@ class Context:
         self.current_step = 0
         self.current_episode_step = 0
         self.current_episode = 0
-
-    def get_history(self) -> History:
-        """Get the history."""
-        return self.history_callback.get_history()
 
     def begin_session(self) -> None:
         """Trigger the begin session event."""
@@ -364,7 +374,7 @@ class Agent(AbstractAgent):
         is_training: bool = True,
         seed: Optional[int] = None,
         experiment_name: str = "",
-    ) -> History:
+    ) -> None:
         """
         Run a training/testing session of the agent.
 
@@ -405,16 +415,14 @@ class Agent(AbstractAgent):
             pass
         except Exception as e:
             exception = e
-        history = context.get_history()
         context.end_session(exception)
-        return history
 
-    def train(self, *args, **kwargs) -> History:
+    def train(self, *args, **kwargs) -> None:
         """Train the agent."""
         assert_("is_training" not in kwargs, "Cannot specify the 'is_training' flag.")
         return self._play(*args, is_training=True, **kwargs)  # type: ignore
 
-    def test(self, *args, **kwargs) -> History:
+    def test(self, *args, **kwargs) -> None:
         """Test the agent."""
         assert_("is_training" not in kwargs, "Cannot specify the 'is_training' flag.")
         return self._play(*args, is_training=False, **kwargs)  # type: ignore

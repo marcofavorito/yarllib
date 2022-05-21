@@ -27,6 +27,7 @@ import pytest
 from gym.envs.toy_text import FrozenLakeEnv
 from gym.wrappers import TimeLimit
 
+from yarllib.core import HistoryCallback
 from yarllib.learning.tabular import TabularQLearning, TabularSarsa
 from yarllib.policies import EpsGreedyPolicy, GreedyPolicy
 
@@ -37,10 +38,12 @@ def test_frozenlake(model_class, sparse):
     """Test Q-Learning implementation on N-Chain environment."""
     env = FrozenLakeEnv(is_slippery=False)
     env = TimeLimit(env, max_episode_steps=env.observation_space.n * 5)
+    history_callback = HistoryCallback()
     agent = model_class(
         env.observation_space, env.action_space, gamma=0.9, sparse=sparse
     ).agent()
     agent.train(env, policy=EpsGreedyPolicy(epsilon=0.5), nb_steps=40000)
-    evaluation = agent.test(env, policy=GreedyPolicy(), nb_episodes=10)
+    agent.test(env, policy=GreedyPolicy(), nb_episodes=10, callbacks=[history_callback])
+    evaluation = history_callback.get_history()
     actual_total_rewards_mean = evaluation.total_rewards.mean()
     assert np.isclose(actual_total_rewards_mean, 1.0)
