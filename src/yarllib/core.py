@@ -92,9 +92,54 @@ class LearningEventListener(ABC):
 class BaseHistoryCallback(LearningEventListener):
     """Record an entire history of a simulation with the environment."""
 
+    def __init__(self) -> None:
+        """Initialize."""
+        self._is_training: Optional[bool] = None
+        self._seed: Optional[int] = None
+        self._experiment_name: Optional[str] = None
+        self._last_episode = 0
+
     @abstractmethod
     def get_history(self) -> History:
         """Get the history object."""
+
+    @abstractmethod
+    def reset(self) -> None:
+        """Reset session."""
+
+    @abstractmethod
+    def save_step(self, step, agent_observation: AgentObservation) -> None:
+        """Save a step."""
+
+    @abstractmethod
+    def save_episode(self, episode_id: int) -> None:
+        """Save an episode."""
+
+    @abstractmethod
+    def reset_episode(self) -> None:
+        """Reset episode."""
+
+    def on_session_begin(self, *args, **kwargs) -> None:
+        """On session begin event."""
+        self._is_training = self.context.is_training
+        self._seed = self.context.seed
+        self._experiment_name = self.context.experiment_name
+        self.reset()
+
+    def on_step_end(self, step, agent_observation: AgentObservation, **kwargs) -> None:
+        """On step end event."""
+        self.save_step(step, agent_observation)
+
+    def on_episode_end(self, episode, **kwargs) -> None:
+        """On episode end event."""
+        self._last_episode = episode
+        self.save_episode(episode)
+        self.reset_episode()
+
+    def on_session_end(self, *args, **kwargs) -> None:
+        """On session end event."""
+        self.save_episode(self._last_episode + 1)
+        self.reset_episode()
 
 
 class HistoryCallback(BaseHistoryCallback):
@@ -106,10 +151,6 @@ class HistoryCallback(BaseHistoryCallback):
         self.current_episode: List[AgentObs] = []
         self.episodes: List[EpisodeAgentObs] = []
 
-        self._is_training: Optional[bool] = None
-        self._seed: Optional[int] = None
-        self._experiment_name: Optional[str] = None
-
     def get_history(self) -> History:
         """Get the history."""
         is_training = cast(bool, self._is_training)
@@ -117,31 +158,26 @@ class HistoryCallback(BaseHistoryCallback):
         name = cast(str, self._experiment_name)
         return History(self.episodes, is_training=is_training, seed=seed, name=name)
 
-    def on_session_begin(self, *args, **kwargs) -> None:
-        """On session begin event."""
+    def reset(self) -> None:
+        """Reset state."""
         self.current_episode = []
         self.episodes = []
-        self._is_training = self.context.is_training
-        self._seed = self.context.seed
-        self._experiment_name = self.context.experiment_name
 
-    def on_step_end(self, step, agent_observation: AgentObservation, **kwargs) -> None:
-        """On step end event."""
+    def save_step(self, step, agent_observation: AgentObservation) -> None:
+        """Save a step."""
         s, a, r, sp = agent_observation[:-1]
         self.current_episode.append((s, a, r, sp))
 
-    def on_episode_end(self, episode, **kwargs) -> None:
-        """On episode end event."""
-        self.episodes.append(self.current_episode)
-        self.current_episode = []
-
-    def on_session_end(self, *args, **kwargs) -> None:
-        """On session end event."""
+    def save_episode(self, _episode_id: int) -> None:
+        """Save an episode."""
         # the training might have been stopped
         # in the middle of an episode
         if len(self.current_episode) > 0:
             self.episodes.append(self.current_episode)
-            self.current_episode = []
+
+    def reset_episode(self) -> None:
+        """Reset episode."""
+        self.current_episode = []
 
 
 class Model(LearningEventListener):
