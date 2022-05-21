@@ -34,12 +34,12 @@ include = []
 
 [tool.poetry.dependencies]
 python = "^3.7"
-gym = "^0.17.2"
 numpy = "^1.19.2"
 matplotlib = "^3.3.2"
 seaborn = "^0.11.0"
 pandas = "^1.1.2"
 scipy = "^1.5.2"
+gym = "^0.23.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.1"
