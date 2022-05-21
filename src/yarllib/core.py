@@ -97,7 +97,7 @@ class BaseHistoryCallback(LearningEventListener):
         self._is_training: Optional[bool] = None
         self._seed: Optional[int] = None
         self._experiment_name: Optional[str] = None
-        self._last_episode = 0
+        self._last_episode = -1
 
     @abstractmethod
     def get_history(self) -> History:
