@@ -78,6 +78,8 @@ class LoggingCallback(LearningEventListener):
         self.logger.setLevel(level)
         self.log_interval = log_interval
 
+        self._rewards = []
+
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin event."""
         self.logger.info("on_session_begin", **kwargs)
@@ -89,12 +91,18 @@ class LoggingCallback(LearningEventListener):
     def on_episode_begin(self, episode, *args, **kwargs) -> None:
         """On episode begin event."""
         if episode % self.log_interval == 0:
-            self.logger.info(f"on_episode_begin: episode={episode}", **kwargs)
+            self.logger.debug(f"on_episode_begin: episode={episode}", **kwargs)
 
     def on_episode_end(self, episode, **kwargs) -> None:
         """On episode end event."""
+        total_reward = sum(self._rewards)
+        episode_length = len(self._rewards)
+        self._rewards = []
         if episode % self.log_interval == 0:
-            self.logger.info(f"on_episode_end: episode={episode}", **kwargs)
+            self.logger.info(
+                f"episode={episode: 6d},\tlength={episode_length: 6d},\ttotal_reward={total_reward: 10.3f}",
+                **kwargs,
+            )
 
     def on_step_begin(self, step, action, **kwargs) -> None:
         """On step begin event."""
@@ -102,6 +110,7 @@ class LoggingCallback(LearningEventListener):
 
     def on_step_end(self, step, agent_observation: AgentObservation, **kwargs) -> None:
         """On step end event."""
+        self._rewards.append(agent_observation[2])
         self.logger.debug(
             f"on_step_end: step={step}, agent_observation={agent_observation}", **kwargs
         )
