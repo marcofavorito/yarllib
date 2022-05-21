@@ -21,8 +21,11 @@
 #
 
 """Test helpers."""
+import random
+
 import gym
 import numpy as np
+import pytest
 from gym.envs.toy_text import CliffWalkingEnv
 from gym.envs.toy_text.cliffwalking import DOWN, LEFT, RIGHT, UP
 from gym.wrappers import TimeLimit
@@ -75,3 +78,9 @@ def make_cliff(max_episode_steps: int = 50):
     env = CliffWalkingEnvWrapper(env)
     env = TimeLimit(env, max_episode_steps=max_episode_steps)
     return env
+
+
+def parametrize_seed(nb_seeds: int = 8):
+    """Parametrize seeds in Pytest test."""
+    sampled_seeds = random.sample(range(2**32 - 1), nb_seeds)
+    return pytest.mark.parametrize("seed", sampled_seeds)

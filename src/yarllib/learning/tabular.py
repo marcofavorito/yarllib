@@ -33,16 +33,18 @@ from yarllib.helpers.base import SparseTable
 from yarllib.types import Action, AgentObservation, State
 
 
-def _make_table(nb_rows: int, nb_cols: int, sparse: bool):
+def _make_table(nb_rows: int, nb_cols: int, sparse: bool, rng: np.random.Generator):
     """Make a table to store the Q-function."""
     if sparse:
         return SparseTable(nb_rows, nb_cols)
     else:
-        return np.random.rand(nb_rows, nb_cols) * np.finfo(float).eps
+        return rng.random((nb_rows, nb_cols)) * np.finfo(float).eps
 
 
 class TabularModel(Model, ABC):
     """A tabular model."""
+
+    q: Any
 
     def __init__(
         self,
@@ -65,11 +67,18 @@ class TabularModel(Model, ABC):
         self.action_space = action_space
         self.alpha = alpha
         self.gamma = gamma
-        self.q = _make_table(state_space.n, action_space.n, sparse)
+        self.sparse = sparse
 
     def get_best_action(self, state: State) -> Any:
         """Get the best action."""
         return self.q[state].argmax()
+
+    def on_session_begin(self, *args, **kwargs) -> None:
+        """On session begin."""
+        if self.context.is_training:
+            self.q = _make_table(
+                self.state_space.n, self.action_space.n, self.sparse, self.context.rng
+            )
 
 
 class TabularQLearning(TabularModel):

@@ -22,14 +22,18 @@
 
 """Test GPI algorithms implementations."""
 import logging
+from typing import Dict, Optional, Tuple, Union
 
+import gym
 import numpy as np
 import pytest
+from gym.core import ActType, ObsType
 from gym.envs.toy_text import FrozenLakeEnv, TaxiEnv
-from gym.envs.toy_text.discrete import DiscreteEnv
+from gym.envs.toy_text.utils import categorical_sample
+from gym.spaces import Discrete
 from gym.wrappers import TimeLimit
 
-from tests.helpers import make_cliff
+from tests.helpers import make_cliff, parametrize_seed
 from yarllib.planning.gpi import PolicyIterationAgent, ValueIterationAgent
 
 logger = logging.getLogger(__name__)
@@ -38,23 +42,46 @@ logger = logging.getLogger(__name__)
 RELATIVE_TOLERANCE = 0.05
 
 
-class TwoCells(DiscreteEnv):
+class TwoCells(gym.Env):
     """Environment with two cells."""
+
+    observation_space = Discrete(2)
+    action_space = Discrete(2)
 
     def __init__(self):
         """Initialize the environment."""
-        P = {
+        self.P = {
             0: {
                 0: [(1.0, 0, -1, True)],
                 1: [(1.0, 1, 1, False)],
             },
             1: {
-                0: [(0.0, 0, 0, False)],
-                1: [(0.0, 1, 0, True)],
+                0: [(1.0, 0, 0, False)],
+                1: [(1.0, 1, 0, True)],
             },
         }
+        self.current_state = 0
 
-        super().__init__(2, 2, P, [1, 0])
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+        """Do a step."""
+        transitions = self.P[self.current_state][action]
+        i = categorical_sample([t[0] for t in transitions], self.np_random)
+        p, s, r, d = transitions[i]
+        self.current_state = s
+        self.lastaction = action
+        return (int(s), r, d, {"prob": p})
+
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ) -> Union[ObsType, Tuple[ObsType, Dict]]:
+        """Reset the environment."""
+        super().reset(seed=seed)
+        self.current_state = 0
+        return self.current_state
 
 
 parametrize_discrete_env = pytest.mark.parametrize(
@@ -69,10 +96,12 @@ parametrize_discrete_env = pytest.mark.parametrize(
 )
 
 
+@parametrize_seed(nb_seeds=2)
 @parametrize_discrete_env
 @pytest.mark.parametrize("agent_type", [ValueIterationAgent, PolicyIterationAgent])
-def test_gpi(agent_type, env, optimal_reward, nb_episodes, gamma):
+def test_gpi(seed, agent_type, env, optimal_reward, nb_episodes, gamma):
     """Test GPI algorithms."""
+    env.reset(seed=seed)
     agent = agent_type(env.observation_space, env.action_space, gamma=gamma)
     agent.train(env)
     history = agent.test(env, nb_episodes=nb_episodes)

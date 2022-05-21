@@ -23,11 +23,10 @@
 """This module implements Dynamic Programming algorithms (e.g. Value Iteration, Policy Iteration etc.)."""
 import logging
 from abc import abstractmethod
-from typing import List, Optional
+from typing import Dict, List, Optional, Protocol
 
 import gym
 import numpy as np
-from gym.envs.toy_text.discrete import DiscreteEnv
 from gym.spaces import Discrete
 
 from yarllib.base import AbstractAgent
@@ -37,6 +36,12 @@ from yarllib.helpers.history import AgentObs, History
 from yarllib.policies import GreedyPolicy
 
 logger = logging.getLogger(__name__)
+
+
+class DiscreteEnv(Protocol):
+    """A discrete gym.Env environment."""
+
+    P: Dict
 
 
 class GPIAgent(AbstractAgent):

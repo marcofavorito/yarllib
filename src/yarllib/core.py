@@ -26,6 +26,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Collection, List, Optional, Sequence, cast
 
 import gym
+import numpy as np
 
 from yarllib.base import AbstractAgent
 from yarllib.helpers.base import assert_, set_env_seed, set_seed
@@ -315,6 +316,13 @@ class Context:
         self.current_episode_step = 0
         self.current_episode = 0
 
+        self._rng: Optional[np.random.Generator] = None
+
+    @property
+    def rng(self) -> np.random.Generator:
+        """Get the random number generator."""
+        return self._rng if self._rng else np.random.default_rng()
+
     def begin_session(self) -> None:
         """Trigger the begin session event."""
         if self.seed is not None:
@@ -334,6 +342,9 @@ class Context:
         self.policy._action_space = None
         if exception is not None:
             raise exception
+        self.current_step = 0
+        self.current_episode_step = 0
+        self.current_episode = 0
 
     def begin_episode(self) -> None:
         """Trigger the begin episode event."""
@@ -363,6 +374,7 @@ class Context:
         """Set the random seed."""
         set_seed(self.seed)
         set_env_seed(self.seed, self.environment)
+        self._rng = np.random.default_rng(self.seed)
 
     def is_session_done(self) -> bool:
         """

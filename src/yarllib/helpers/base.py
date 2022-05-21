@@ -184,6 +184,6 @@ def set_seed(seed: Optional[int]) -> None:
 
 def set_env_seed(seed: Optional[int], env: gym.Env) -> None:
     """Set seed to a OpenAI Gym environment."""
-    env.seed(seed)
+    env.reset(seed=seed)
     env.observation_space.seed(seed)
     env.action_space.seed(seed)

@@ -22,7 +22,6 @@
 
 """This module contains the implementation of common RL policies."""
 
-import random
 from typing import cast
 
 import gym
@@ -85,7 +84,7 @@ class EpsGreedyPolicy(Policy):
         :param state: the state from where to take the decision.
         :return: the greedy or random action.
         """
-        if random.random() < self.epsilon:
+        if self.context.rng.random() < self.epsilon:
             return self.action_space.sample()
         else:
             return self.model.get_best_action(state)
