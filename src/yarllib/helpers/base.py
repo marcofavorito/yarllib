@@ -89,7 +89,7 @@ def _(space: gym.spaces.Discrete) -> int:
 @get_gym_space_dimension.register(MultiBinary)
 def _multibinary(space: gym.spaces.MultiBinary) -> int:
     """Get the size of a Discrete space."""
-    return 2 ** space.n
+    return 2**space.n
 
 
 @get_gym_space_dimension.register(MultiDiscrete)

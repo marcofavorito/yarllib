@@ -68,7 +68,7 @@ class GPIAgent(AbstractAgent):
             self.improvement(env)
         logger.debug("Training number of iterations: %s", _i)
 
-    def test(
+    def test(  # type: ignore
         self,
         env: gym.Env,
         policy: Optional[Policy] = None,
@@ -76,12 +76,12 @@ class GPIAgent(AbstractAgent):
         seed: Optional[int] = None,
         experiment_name: str = "",
         **_kwargs
-    ) -> History:
+    ):
         """Test the agent."""
         if policy is None:
             policy = GreedyPolicy()
         policy.action_space = env.action_space
-        policy.model = self
+        policy.model = self  # type: ignore
 
         set_seed(seed)
         set_env_seed(seed, env)
