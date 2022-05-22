@@ -22,13 +22,16 @@
 
 """Base helper module."""
 import random
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from functools import partial, singledispatch
-from typing import Any, Optional
+from typing import Any, Dict, Optional, cast
 
 import gym
 import numpy as np
-from gym.spaces import Discrete, MultiBinary, MultiDiscrete, Tuple
+from gym.spaces import Discrete, MultiDiscrete, Tuple
+
+from yarllib.types import State
 
 
 def assert_(condition: bool, message: str = ""):
@@ -86,12 +89,6 @@ def _(space: gym.spaces.Discrete) -> int:
     return space.n
 
 
-@get_gym_space_dimension.register(MultiBinary)
-def _multibinary(space: gym.spaces.MultiBinary) -> int:
-    """Get the size of a Discrete space."""
-    return 2**space.n
-
-
 @get_gym_space_dimension.register(MultiDiscrete)
 def _multidiscrete(space: gym.spaces.MultiDiscrete) -> int:
     """Get the size of a Discrete space."""
@@ -104,54 +101,49 @@ def _tuple(space: gym.spaces.Tuple) -> int:
     return int(np.prod(get_gym_space_dimension(s) for s in space.spaces))
 
 
-class SparseTable:
+class QFunction(ABC):
+    """Abstract Q-value function."""
+
+    @abstractmethod
+    def get_q_values(self, s: State):
+        """Get all q-values given a state."""
+
+
+class QTable(QFunction):
+    """A complete Q-value function."""
+
+    def __init__(
+        self, nb_states: int, nb_actions: int, rng: np.random.Generator
+    ) -> None:
+        """Initialize the Q-table."""
+        self._m = rng.random((nb_states, nb_actions)) * np.finfo(float).eps
+
+    def get_q_values(self, s: State) -> np.ndarray:
+        """Get the Q-values of a state."""
+        return self._m[s]
+
+
+class SparseTable(QFunction):
     """A (naive) sparse table, implemented using defaultdict."""
 
     @staticmethod
-    def _initialize_row(nb_cols: int):
-        return np.finfo(float).eps * np.random.randn(nb_cols)
+    def _initialize_row(nb_cols: int, rng: np.random.Generator):
+        return np.finfo(float).eps * rng.random(nb_cols)
 
     @staticmethod
     def _is_index_type(key) -> bool:
         return isinstance(key, (int, np.int64))
 
-    def __init__(self, *args):
+    def __init__(self, nb_actions: int, rng: np.random.Generator):
         """Initialize the sparse table."""
-        assert_(len(args) == 2, "Only two-dimensional matrices can be represented.")
-        self._rows, self._cols = args
-        self._m = defaultdict(partial(self._initialize_row, self._cols))
+        self._nb_actions = nb_actions
+        self._m: Dict[State, np.ndarray] = defaultdict(
+            partial(self._initialize_row, self._nb_actions, rng)
+        )
 
-    def __getitem__(self, key):
-        """Get an item."""
-        if self._is_index_type(key):
-            assert_(0 <= key < self._rows, f"Row index {key} out of bound.")
-            if key not in self._m.keys():
-                # the following statement has the effect
-                # to instantiate missing Q-values for some key
-                # thanks to how 'defaultdict' works.
-                self._m[key]
-            return self._m[key]
-        if len(key) == 2:
-            row, col = key
-            assert_(self._is_index_type(row), f"Row {row} has wrong type.")
-            assert_(self._is_index_type(col), f"Column {col} has wrong type.")
-            assert_(0 <= row < self._rows, f"Row index {row} out of bound.")
-            assert_(0 <= col < self._cols, f"Column index {col} out of bound.")
-            return self._m[row][col]
-        else:
-            raise ValueError()
-
-    def __setitem__(self, key, item) -> None:
-        """Set an item."""
-        if len(key) == 2:
-            row, col = key
-            if row not in self._m.keys():
-                # this will initialize the entire row
-                self._m[row]
-            self._m[row][col] = item
-        else:
-            assert_(isinstance(item, np.ndarray), "Can only set arrays.")
-            self._m[key] = item
+    def get_q_values(self, s: State) -> np.ndarray:
+        """Get Q-values of a state."""
+        return cast(np.ndarray, self._m[s])
 
 
 def to_native_type(numpy_obj):

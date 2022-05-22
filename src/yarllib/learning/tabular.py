@@ -26,19 +26,23 @@ from abc import ABC
 from typing import Any
 
 import numpy as np
+from gym import Space
 from gym.spaces import Discrete
 
 from yarllib.core import Model
-from yarllib.helpers.base import SparseTable
+from yarllib.helpers.base import QTable, SparseTable, get_gym_space_dimension
 from yarllib.types import Action, AgentObservation, State
 
 
-def _make_table(nb_rows: int, nb_cols: int, sparse: bool, rng: np.random.Generator):
+def _make_table(
+    state_space: Space, action_space: Space, sparse: bool, rng: np.random.Generator
+):
     """Make a table to store the Q-function."""
     if sparse:
-        return SparseTable(nb_rows, nb_cols)
-    else:
-        return rng.random((nb_rows, nb_cols)) * np.finfo(float).eps
+        return SparseTable(get_gym_space_dimension(action_space), rng)
+    return QTable(
+        get_gym_space_dimension(state_space), get_gym_space_dimension(action_space), rng
+    )
 
 
 class TabularModel(Model, ABC):
@@ -71,13 +75,13 @@ class TabularModel(Model, ABC):
 
     def get_best_action(self, state: State) -> Any:
         """Get the best action."""
-        return self.q[state].argmax()
+        return self.q.get_q_values(state).argmax()
 
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin."""
         if self.context.is_training:
             self.q = _make_table(
-                self.state_space.n, self.action_space.n, self.sparse, self.context.rng
+                self.state_space, self.action_space, self.sparse, self.context.rng
             )
 
 
@@ -94,7 +98,9 @@ class TabularQLearning(TabularModel):
         gamma = self.gamma
         alpha = self.alpha
         s, a, r, sp, done = agent_observation
-        q[s, a] = q[s, a] + alpha * (r + gamma * q[sp].max() - q[s, a])
+        q_s = q.get_q_values(s)
+        q_sp = q.get_q_values(sp)
+        q_s[a] = q_s[a] + alpha * (r + gamma * q_sp.max() - q_s[a])
 
 
 class TabularSarsa(TabularModel):
@@ -129,4 +135,6 @@ class TabularSarsa(TabularModel):
         alpha = self.alpha
         ap = self._next_action
         s, a, r, sp, done = agent_observation
-        q[s, a] = q[s, a] + alpha * (r + gamma * q[sp, ap] - q[s, a])
+        q_s = q.get_q_values(s)
+        q_sp = q.get_q_values(sp)
+        q_s[a] = q_s[a] + alpha * (r + gamma * q_sp[ap] - q_s[a])
