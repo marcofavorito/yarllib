@@ -75,9 +75,9 @@ def make_cliff(max_episode_steps: int = 50):
         for action in [UP, RIGHT, DOWN, LEFT]:
             env.P[cliff_state][action] = []
 
-    env = CliffWalkingEnvWrapper(env)
-    env = TimeLimit(env, max_episode_steps=max_episode_steps)
-    return env
+    wrapped_1 = CliffWalkingEnvWrapper(env)
+    wrapped_2 = TimeLimit(wrapped_1, max_episode_steps=max_episode_steps)
+    return wrapped_2
 
 
 def parametrize_seed(nb_seeds: int = 8):

@@ -252,7 +252,7 @@ class Policy(LearningEventListener):
     def action_space(self) -> gym.spaces.Space:
         """Get the action space."""
         assert_(self._model is not None, "Action space is not set.")
-        return self._action_space
+        return cast(gym.spaces.Space, self._action_space)
 
     @action_space.setter
     def action_space(self, value: Optional[gym.spaces.Space]) -> None:

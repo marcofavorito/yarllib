@@ -21,7 +21,7 @@
 #
 
 """Test the multi-agent model of yarllib."""
-from typing import Any, Optional, Tuple, Type
+from typing import Any, Dict, Optional, Tuple, Type, Union
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -59,7 +59,13 @@ class MultiAgentTestEnv(gym.Env):
             {},
         )
 
-    def reset(self) -> Tuple[int, ...]:
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        return_info: bool = False,
+        options: Optional[dict] = None,
+    ) -> Union[Tuple[int, ...], Tuple[Tuple[int, ...], Dict]]:
         """Reset the state."""
         return tuple([self._DEFAULT_STATE] * self.nb_agents)
 

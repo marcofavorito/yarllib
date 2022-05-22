@@ -24,7 +24,7 @@
 import logging
 import shutil
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from PIL import Image
 
@@ -78,7 +78,7 @@ class LoggingCallback(LearningEventListener):
         self.logger.setLevel(level)
         self.log_interval = log_interval
 
-        self._rewards = []
+        self._rewards: List[float] = []
 
     def on_session_begin(self, *args, **kwargs) -> None:
         """On session begin event."""

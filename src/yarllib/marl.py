@@ -162,7 +162,7 @@ class MultiAgentPolicy(Policy):
         )
         self._action_space = value
         spaces = value.spaces if value is not None else [None] * len(self.policies)
-        for p, s in zip(self.policies, spaces):
+        for p, s in zip(self.policies, spaces):  # type: ignore
             p.action_space = s
 
     def get_action(self, state: State) -> Any:
