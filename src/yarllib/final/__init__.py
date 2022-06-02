@@ -20,15 +20,6 @@
 # along with yarllib.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""This module contains basic types definitions."""
+"""yarllib: Yet Another Reinforcement Learning Library."""
 
-from typing import Any, Dict, List, Tuple
-
-State = Any
-Action = Any
-Reward = Any
-Done = bool
-Probability = float
-AgentObservation = Tuple[State, Action, Reward, State, Done]
-Transition = Tuple[Probability, State, Reward, Done]
-Dynamics = Dict[State, Dict[Action, List[Transition]]]
+__version__ = "0.3.0"
